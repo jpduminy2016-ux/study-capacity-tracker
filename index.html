@@ -1,0 +1,1646 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Personal Study & Capacity Tracker v2.0</title>
+<style>
+:root{
+  --purple:#76568f;--purple2:#8b6aa5;--pale:#f5f0f8;--bg:#f5f3f1;
+  --ink:#29272a;--muted:#706b70;--line:#e6e0e8;--green:#2e8b57;
+  --amber:#d88a13;--red:#c64a4a;--blue:#147fe8;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+header{background:#fff;position:sticky;top:0;z-index:30;border-bottom:1px solid #ddd}
+.top{max-width:1160px;margin:auto;padding:14px 18px 10px;display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:800;font-size:18px;color:var(--purple);display:flex;gap:8px;align-items:center}
+.badge{font-size:12px;background:#eee6f2;color:var(--purple);padding:3px 7px;border-radius:10px}
+.datebox{display:flex;align-items:center;gap:10px;font-weight:700}
+input[type=date],input[type=time],select,input[type=number],input[type=text],textarea{
+  font:inherit;border:1px solid #d8d2da;border-radius:10px;padding:9px 11px;background:#fff;color:var(--ink)
+}
+.tabs{max-width:1160px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{border:0;background:#fff;padding:12px 8px;font-weight:800;font-size:15px;cursor:pointer;border-bottom:3px solid transparent;color:#27242a}
+.tab.active{color:var(--purple);border-bottom-color:var(--purple)}
+main{max-width:1160px;margin:auto;padding:24px 18px 90px}
+.pagehead h1{font-size:28px;margin:0 0 2px}
+.pagehead p{margin:0 0 22px;color:var(--muted)}
+.card{background:#fff;border-radius:22px;padding:20px 22px;margin:16px 0;box-shadow:0 2px 12px rgba(50,35,60,.06)}
+.card h2{font-size:20px;margin:0 0 18px}
+.q{margin:14px 0}.q label.title{display:block;font-weight:700;margin-bottom:8px}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.choice,.score{border:1px solid #ddd7df;background:#fff;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;transition:.15s}
+.choice:hover,.score:hover{border-color:var(--purple2)}
+.choice.selected,.score.selected{background:var(--pale);border-color:var(--purple);color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple)}
+.hidden{display:none!important}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:#faf8fb;border:1px solid var(--line);border-radius:15px;padding:14px}
+.stat .big{font-size:25px;font-weight:900;color:var(--purple)}
+.stat .small{font-size:13px;color:var(--muted)}
+.workbox{background:var(--pale);padding:12px 14px;border-radius:12px;color:#4d4054;font-weight:700}
+.rating{display:grid;grid-template-columns:190px 1fr;align-items:center;gap:12px;margin:13px 0}
+.rating .name{font-weight:700}
+.mini-note{font-size:13px;color:var(--muted)}
+.verdict{border-left:5px solid var(--purple);background:#f8f5fa;padding:15px;border-radius:12px;margin-top:15px}
+.verdict .capacity{font-size:25px;font-weight:900;color:var(--purple)}
+.capacity-levels{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+.cap-level{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}
+.cap-level.current{background:var(--pale);border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple)}
+.cap-level b{display:block;font-size:13px}.cap-level .num{font-size:18px;font-weight:900;margin-top:3px}
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.tier{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff}
+.tier b{display:block;margin-bottom:5px}.tier .num{font-size:22px;font-weight:900}
+.survival{border-top:4px solid #777}.minimum{border-top:4px solid var(--red)}
+.target{border-top:4px solid var(--purple)}.stretch{border-top:4px solid var(--green)}
+.strict{margin-top:14px;background:#fff6e8;border:1px solid #f0d4a6;border-radius:13px;padding:13px;font-weight:800}
+.danger{color:var(--red)}.good{color:var(--green)}
+.savebar{position:sticky;bottom:10px;z-index:10;background:rgba(255,255,255,.96);border:1px solid var(--line);box-shadow:0 5px 20px rgba(0,0,0,.1);border-radius:15px;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.savebtn{background:var(--purple);color:white;border:0;border-radius:12px;padding:13px 18px;font-weight:900;cursor:pointer}
+.savebtn:hover{background:#65477d}.secondary{background:#fff;color:var(--purple);border:1px solid #d7cadf}
+textarea{width:100%;min-height:80px;resize:vertical}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--muted)}
+.history-wrap{overflow:auto}.smallbtn{border:1px solid #ddd7df;background:#fff;border-radius:9px;padding:7px 10px;cursor:pointer;font-weight:700}
+.footer-note{font-size:12px;color:var(--muted);margin-top:8px}
+.study-runway{position:sticky;top:0;z-index:18;background:rgba(255,255,255,.97);border-bottom:1px solid var(--line);box-shadow:0 3px 12px rgba(80,60,90,.08);padding:10px 5%}
+.runway-inner{max-width:1180px;margin:auto}.runway-head{display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:800;color:var(--purple)}
+.runway-label{font-size:14px}.runway-numbers{font-size:13px;color:var(--ink)}
+.runway-track{height:12px;background:#eee8f1;border-radius:999px;overflow:hidden;margin-top:7px}
+.runway-fill{height:100%;background:var(--purple);border-radius:999px;transition:width .25s ease}
+.runway-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.work-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.callout{padding:13px;border-radius:13px;background:#f7f5f7;border:1px solid var(--line);margin-top:12px}
+.level-1{border-left:5px solid #777}.level-2{border-left:5px solid var(--red)}
+.level-3{border-left:5px solid var(--purple)}.level-4{border-left:5px solid var(--green)}.level-5{border-left:5px solid var(--blue)}
+@media(max-width:800px){
+  .grid2,.grid3,.statgrid,.tiers{grid-template-columns:1fr 1fr}
+  .rating{grid-template-columns:1fr}.capacity-levels{grid-template-columns:1fr 1fr 1fr}.work-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:520px){
+  .grid2,.grid3,.statgrid,.tiers,.capacity-levels,.work-grid{grid-template-columns:1fr}
+  .top{align-items:flex-start;gap:10px;flex-direction:column}
+  .tabs{position:sticky;top:72px;z-index:19}
+  .runway-head{align-items:flex-start;flex-direction:column;gap:3px}
+}
+
+.shift-presets{margin-top:6px}
+.shift-presets .choice{padding:10px 12px}
+.shift-presets .choice.selected{background:var(--pale);border-color:var(--purple);color:var(--purple)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <div class="brand">🧠 Personal Study & Capacity Tracker <span class="badge">v2.3</span></div>
+    <div class="datebox">Tracker date <input id="trackerDate" type="date"></div>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="morning">🌅 Morning</button>
+    <button class="tab" data-tab="afternoon">☀️ Afternoon</button>
+    <button class="tab" data-tab="evening">🌆 Evening</button>
+    <button class="tab" data-tab="night">🌙 Night</button>
+  </nav>
+</header>
+
+<div class="study-runway">
+  <div class="runway-inner">
+    <div class="runway-head">
+      <div class="runway-label">📚 TODAY'S STUDY RUNWAY</div>
+      <div class="runway-numbers" id="runwayNumbers">Loading…</div>
+    </div>
+    <div class="runway-track"><div class="runway-fill" id="runwayFill" style="width:0%"></div></div>
+    <div class="runway-sub" id="runwaySub">The target follows the day rather than pretending every day has the same capacity.</div>
+  </div>
+</div>
+
+<main>
+
+<section id="morning" class="panel">
+  <div class="pagehead">
+    <h1>🌅 How Much Brain in the Tank?</h1>
+    <p>Capacity is not a mood score. The tracker combines your ratings with sleep, usable time, duty, post-duty recovery, tomorrow's duty and competing obligations.</p>
+  </div>
+
+  <div class="card">
+    <h2>1. 🏥 Work & Duty Schedule</h2>
+    <div class="q">
+      <label class="title">Do you have work today?</label>
+      <div class="btnrow" data-field="morning.workToday" data-type="choice" data-options="Yes,No"></div>
+    </div>
+    <div id="mTodayWork" class="hidden"></div>
+
+    <div class="q">
+      <label class="title">Did you have work yesterday?</label>
+      <div class="btnrow" data-field="morning.workYesterday" data-type="choice" data-options="Yes,No"></div>
+    </div>
+    <div id="mYesterdayWork" class="hidden"></div>
+
+    <div class="q">
+      <label class="title">Do you have work tomorrow?</label>
+      <div class="btnrow" data-field="morning.workTomorrow" data-type="choice" data-options="Yes,No"></div>
+    </div>
+    <div id="mTomorrowWork" class="hidden"></div>
+
+    <div class="callout">
+      <b>Why this matters:</b> a duty day, immediate post-duty day and pre-duty day are treated differently.
+      The work schedule is a <b>hard constraint</b>; a high mood score cannot magically turn a post-duty day into a normal study day.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 😴 Recovery</h2>
+    <div class="grid2">
+      <div class="q">
+        <label class="title">Sleep duration</label>
+        <select data-field="morning.sleepDuration">
+          <option value="">Choose...</option>
+          <option>&lt; 4 h</option><option>4–5 h</option><option>5–6 h</option>
+          <option>6–7 h</option><option>7–8 h</option><option>&gt;8 h</option>
+        </select>
+      </div>
+      <div class="q">
+        <label class="title">Sleep quality <span data-value="morning.sleepQuality">—</span>/5</label>
+        <div class="btnrow" data-field="morning.sleepQuality" data-type="score" data-options="1,2,3,4,5"></div>
+      </div>
+    </div>
+    <div class="q">
+      <label class="title">Recovery from previous work <span data-value="morning.recovery">—</span>/5</label>
+      <div class="btnrow" data-field="morning.recovery" data-type="score" data-options="1,2,3,4,5"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. 🧠 Capacity Inputs — 1–5</h2>
+    <div id="morningRatings"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. ⏱️ Usable Study Time</h2>
+    <div class="q">
+      <label class="title">How much genuinely usable study time do you have today, after work, travel, food, sleep and life?</label>
+      <div class="btnrow" data-field="morning.availableTime" data-type="choice"
+           data-options="&lt;30 min,30–60 min,1–2 h,2–3 h,3–4 h,4–5 h,5+ h"></div>
+    </div>
+    <div class="q">
+      <label class="title">What will compete for that time?</label>
+      <div class="btnrow" data-field="morning.obligations" data-type="multi"
+           data-options="Work preparation,Travel,Food,Sleep,Personal/admin,Content creation,Family/social,Nothing significant"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. 📚 Exam Pressure — January Reality Check</h2>
+    <div class="q">
+      <label class="title">How urgently do you need to study today? <span data-value="morning.examPressure">—</span>/5</label>
+      <div class="btnrow" data-field="morning.examPressure" data-type="score" data-options="1,2,3,4,5"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>6. 🧮 Morning Verdict</h2>
+    <div id="morningVerdict"></div>
+  </div>
+
+  <div class="savebar">
+    <span id="morningStatus">Not saved yet.</span>
+    <button class="savebtn" onclick="saveStage('morning')">SAVE MORNING CHECK-IN</button>
+  </div>
+</section>
+
+<section id="afternoon" class="panel hidden">
+  <div class="pagehead">
+    <h1>☀️ Still Got Gas?</h1>
+    <p>Morning made the plan. Afternoon checks whether reality agreed.</p>
+  </div>
+
+  <div class="card">
+    <h2>1. 🏥 Work Check</h2>
+    <div id="aWorkSummary" class="workbox"></div>
+    <div class="q">
+      <label class="title">Has anything changed about today's work?</label>
+      <div class="btnrow" data-field="afternoon.workChange" data-type="choice"
+           data-options="No change,Started earlier,Starts later,Ending earlier,Ending later,Cancelled,New/additional work"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 📊 Actual Progress</h2>
+    <div class="statgrid">
+      <div class="stat"><div id="aPmTarget" class="big">0</div><div class="small">Current PM target</div></div>
+      <div class="stat"><div id="aKtCardTarget" class="big">0</div><div class="small">Current KT target</div></div>
+      <div class="stat"><div id="aPmDone" class="big">0</div><div class="small">PM completed</div></div>
+      <div class="stat"><div id="aKtDone" class="big">0</div><div class="small">KT completed</div></div>
+    </div>
+    <div class="grid2" style="margin-top:15px">
+      <div class="q"><label class="title">PM completed so far today</label><input type="number" min="0" id="aPmInput"></div>
+      <div class="q"><label class="title">KT cards completed so far today</label><input type="number" min="0" id="aKtCardsInput"></div>
+    </div>
+    <div class="q">
+      <label class="title">Study productivity <span data-value="afternoon.productivity">—</span>/5</label>
+      <div class="btnrow" data-field="afternoon.productivity" data-type="score" data-options="1,2,3,4,5"></div>
+    </div>
+  </div>
+
+  <div class="card"><h2>3. 🧠 Current Capacity</h2><div id="afternoonRatings"></div></div>
+
+  <div class="card">
+    <h2>4. 🧳 What's Left?</h2>
+    <div class="q">
+      <label class="title">How much usable study time do you realistically have before evening?</label>
+      <div class="btnrow" data-field="afternoon.availableTime" data-type="choice"
+           data-options="&lt;30 min,30–60 min,1–2 h,2–3 h,3–4 h,4+ h"></div>
+    </div>
+    <div class="q">
+      <label class="title">Anything competing for that time?</label>
+      <div class="btnrow" data-field="afternoon.obligations" data-type="multi"
+           data-options="Work preparation,Travel,Food,Sleep,Personal/admin,Content creation,Nothing significant"></div>
+    </div>
+  </div>
+
+  <div class="card"><h2>5. 📚 Midday Reality Check</h2><div id="afternoonVerdict"></div></div>
+
+  <div class="savebar">
+    <span id="afternoonStatus">Not saved yet.</span>
+    <button class="savebtn" onclick="saveStage('afternoon')">SAVE AFTERNOON CHECK-IN</button>
+  </div>
+</section>
+
+<section id="evening" class="panel hidden">
+  <div class="pagehead">
+    <h1>🌆 Plot Twist: How Did the Day Actually Go?</h1>
+    <p>Evening does not punish you for the morning plan. It recalculates from what actually happened.</p>
+  </div>
+
+  <div class="card">
+    <h2>1. 🏥 Work Update</h2>
+    <div id="eWorkSummary" class="workbox"></div>
+    <div class="q">
+      <label class="title">Has reality changed again?</label>
+      <div class="btnrow" data-field="evening.workChange" data-type="choice"
+           data-options="No change,Started earlier,Starts later,Ending earlier,Ending later,Cancelled,New/additional work"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 📚 Study Progress</h2>
+    <div class="statgrid">
+      <div class="stat"><div id="ePmDone" class="big">0</div><div class="small">PM today</div></div>
+      <div class="stat"><div id="eKtDone" class="big">0</div><div class="small">KT cards today</div></div>
+      <div class="stat"><div id="ePmTarget" class="big">0</div><div class="small">Current PM target</div></div>
+      <div class="stat"><div id="eKtTargetStat" class="big">0</div><div class="small">Current KT target</div></div>
+    </div>
+
+    <div class="grid2" style="margin-top:15px">
+      <div class="q"><label class="title">PM completed so far today</label><input type="number" min="0" id="ePmCompletedInput"></div>
+      <div class="q"><label class="title">KT cards completed so far today</label><input type="number" min="0" id="eKtCompletedInput"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="q">
+        <label class="title">Additional PM tonight</label>
+        <div class="btnrow" data-field="evening.additionalPM" data-type="choice" data-options="0,5,10,15,20,30,40+"></div>
+      </div>
+      <div class="q">
+        <label class="title">Additional KT tonight</label>
+        <div class="btnrow" data-field="evening.additionalKT" data-type="choice" data-options="0,10,20,30,40,50,75+"></div>
+      </div>
+    </div>
+
+    <div class="strict" id="ktTargetMessage"></div>
+    <div class="mini-note" id="eveningRemainingMessage" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card"><h2>3. 🌙 Evening Capacity</h2><div id="eveningRatings"></div></div>
+
+  <div class="card">
+    <h2>4. 🛋️ What Do You Actually Need Tonight?</h2>
+    <div class="q">
+      <label class="title">How much usable time do you have?</label>
+      <div class="btnrow" data-field="evening.availableTime" data-type="choice"
+           data-options="&lt;30m,30–60m,1–2h,2–3h,3–4h,4h+"></div>
+    </div>
+    <div class="q">
+      <label class="title">What else needs your attention?</label>
+      <div class="btnrow" data-field="evening.needs" data-type="multi"
+           data-options="Sleep,Food,Personal life,Work preparation,Admin,Travel,Content creation,Nothing"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. 🎥 Content Creation</h2>
+    <div class="q">
+      <label class="title">Content status today</label>
+      <div class="btnrow" data-field="evening.contentStatus" data-type="choice"
+           data-options="Nothing planned,Idea only,Scripted,Recorded,Edited,Posted"></div>
+    </div>
+    <div class="q">
+      <label class="title">Do you want to work on content tonight?</label>
+      <div class="btnrow" data-field="evening.contentTime" data-type="choice"
+           data-options="No,15 min,30 min,60 min+"></div>
+    </div>
+  </div>
+
+  <div class="card"><h2>6. 🧮 Evening Re-calculation</h2><div id="eveningVerdict"></div></div>
+
+  <div class="savebar">
+    <span id="eveningStatus">Not saved yet.</span>
+    <button class="savebtn" onclick="saveStage('evening')">SAVE EVENING CHECK-IN</button>
+  </div>
+</section>
+
+<section id="night" class="panel hidden">
+  <div class="pagehead">
+    <h1>🌙 Close the Tabs</h1>
+    <p>No more planning-heavy questions. Record the day, learn from it, and feed tomorrow.</p>
+  </div>
+
+  <div class="card"><h2>1. 📊 Today's Scorecard</h2><div id="nightScorecard"></div></div>
+  <div class="card"><h2>2. 🧠 How Did Today Actually Feel?</h2><div id="nightRatings"></div></div>
+
+  <div class="card">
+    <h2>3. 📝 Quick Reflection</h2>
+    <div class="q">
+      <label class="title">What helped today?</label>
+      <div class="btnrow" data-field="night.helped" data-type="multi"
+           data-options="Good sleep,Good planning,Momentum,Short sessions,KT,PM,Rest,Other"></div>
+    </div>
+    <div class="q">
+      <label class="title">What got in the way?</label>
+      <div class="btnrow" data-field="night.hindered" data-type="multi"
+           data-options="Work,Travel,Sleep,Stress,Mood,Phone/distraction,Personal responsibilities,Poor planning,Other"></div>
+    </div>
+    <div class="q">
+      <label class="title">Today I learned that…</label>
+      <textarea data-field="night.reflection"></textarea>
+    </div>
+  </div>
+
+  <div class="card"><h2>4. 📈 Historical Learning</h2><div id="patterns"></div></div>
+  <div class="card"><h2>5. 🎯 Tomorrow Preview</h2><div id="tomorrowPreview"></div></div>
+
+  <div class="card">
+    <h2>6. 🌙 Final Check</h2>
+    <div class="q">
+      <label class="title">How do you feel about tomorrow?</label>
+      <div class="btnrow" data-field="night.tomorrowFeeling" data-type="score" data-options="1,2,3,4,5"></div>
+      <div class="mini-note">1 = Please let me hibernate · 5 = LET'S FUCKING GO.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🗃️ Historical Database</h2>
+    <div class="grid2">
+      <div>
+        <b>Saved days:</b> <span id="historyCount">0</span>
+        <div class="footer-note">Data stays in this browser using persistent local storage.</div>
+      </div>
+      <div class="btnrow" style="justify-content:flex-end">
+        <button class="smallbtn" onclick="exportData()">Export history</button>
+        <button class="smallbtn" onclick="document.getElementById('importFile').click()">Import history</button>
+        <input id="importFile" type="file" accept="application/json" class="hidden">
+      </div>
+    </div>
+    <div class="history-wrap" style="margin-top:15px">
+      <table>
+        <thead><tr><th>Date</th><th>Schedule</th><th>PM</th><th>KT</th><th>KT %</th><th>Capacity</th><th>Status</th></tr></thead>
+        <tbody id="historyTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="savebar">
+    <span id="nightStatus">Not saved yet.</span>
+    <button class="savebtn" onclick="closeDay()">CLOSE DAY</button>
+  </div>
+</section>
+
+</main>
+
+<script>
+/*
+  PERSONAL STUDY & CAPACITY TRACKER v2.3
+
+  The important correction is the separation of:
+  1. INTRINSIC CAPACITY = how capable you feel/function right now.
+  2. SCHEDULE CONSTRAINT = duty / post-duty / pre-duty / normal day.
+  3. TIME AVAILABLE = how much usable study time actually exists.
+  4. TARGET ALLOCATION = what the syllabus requires and what today's capacity can carry.
+
+  The five capacity levels are:
+    1 Recovery
+    2 Low / Survival
+    3 Standard
+    4 Strong
+    5 Peak
+
+  Capacity is continuous inside the five levels. A score such as 3.3 is
+  not treated identically to 3.0: it gets its own interpolated study
+  multiplier. Final question counts are rounded up.
+  Work is a hard constraint. A high rating cannot override a duty-day cap.
+*/
+
+const KEY='pst_capacity_tracker_v2_3';
+const LEGACY_KEYS=['pst_capacity_tracker_v2_2','pst_capacity_tracker_v2_1','pst_capacity_tracker_v2','pst_capacity_tracker_v1_1'];
+
+const CORE={
+  pmStart:4800,
+  ktBaseline:0,
+  examDate:'2027-01-15',
+  revisionDays:30,
+  mockDays:21
+};
+
+/*
+  CAPACITY MODEL v2.2
+  - One usable capacity score only: 1.0, 1.5, 2.0 ... 5.0.
+  - Five named bands are retained for readability.
+  - 3.5 = exactly 1.00× of ideal syllabus pace.
+  - Work schedule, recovery, function, usable time and competing obligations
+    all contribute to the score.
+  - Exam pressure changes allocation urgency, NOT biological capacity.
+*/
+/*
+  CAPACITY MODEL v2.3 — DISCRETE, TRANSPARENT, NO FUZZY BANDS
+
+  The tracker calculates ONE raw capacity score on a 1–5 scale and then
+  rounds it to the nearest 0.5. The only possible assigned scores are:
+  1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0.
+
+  Five named levels:
+    Level 1 = 1.0
+    Level 2 = 1.5 or 2.0
+    Level 3 = 2.5 or 3.0
+    Level 4 = 3.5 or 4.0
+    Level 5 = 4.5 or 5.0
+
+  3.5 = exactly 1.00× ideal syllabus pace.
+*/
+const CAPACITY_LEVELS=[
+  {level:1,name:'RECOVERY',scores:[1.0],study:'Recovery first · continuity only'},
+  {level:2,name:'LOW / SURVIVAL',scores:[1.5,2.0],study:'Short, focused work · survival floor'},
+  {level:3,name:'STANDARD',scores:[2.5,3.0],study:'Normal planned study day'},
+  {level:4,name:'STRONG',scores:[3.5,4.0],study:'Productive day · modest extra work'},
+  {level:5,name:'PEAK',scores:[4.5,5.0],study:'High-capacity day · stretch is allowed'}
+];
+
+const CAPACITY_POINTS=[
+  [1.0,.40],[1.5,.55],[2.0,.70],[2.5,.85],[3.0,.93],
+  [3.5,1.00],[4.0,1.10],[4.5,1.20],[5.0,1.30]
+];
+
+function continuousCapacityFactor(c){
+  if(c===null || !Number.isFinite(c)) return 1;
+  const x=Math.max(1,Math.min(5,Math.round(c*2)/2));
+  const exact=CAPACITY_POINTS.find(([score])=>score===x);
+  return exact?exact[1]:1;
+}
+
+const ratingSets={
+  morning:[
+    ['physicalEnergy','Physical energy','normal',.14],
+    ['mentalEnergy','Mental energy','normal',.16],
+    ['mood','Mood','normal',.08],
+    ['motivation','Motivation','normal',.10],
+    ['concentration','Concentration','normal',.14],
+    ['stress','Stress','inverse',.10],
+    ['emotionalLoad','Emotional load','inverse',.10],
+    ['travelFatigue','Travel fatigue','inverse',.05],
+    ['adminBurden','Personal/admin burden','inverse',.05]
+  ],
+  afternoon:[
+    ['physicalEnergy','Physical energy','normal',.17],
+    ['mentalEnergy','Mental energy','normal',.17],
+    ['mood','Mood','normal',.10],
+    ['concentration','Concentration','normal',.18],
+    ['stress','Stress','inverse',.13],
+    ['emotionalLoad','Emotional load','inverse',.10],
+    ['productivity','Study productivity','normal',.15]
+  ],
+  evening:[
+    ['physicalEnergy','Physical energy','normal',.17],
+    ['mentalEnergy','Mental energy','normal',.17],
+    ['concentration','Concentration','normal',.18],
+    ['mood','Mood','normal',.10],
+    ['stress','Stress','inverse',.13],
+    ['emotionalLoad','Emotional load','inverse',.10],
+    ['productivity','Study productivity','normal',.15]
+  ],
+  night:[
+    ['physicalEnergy','Physical energy','normal',.15],
+    ['mentalEnergy','Mental energy','normal',.15],
+    ['concentration','Concentration','normal',.15],
+    ['mood','Mood','normal',.12],
+    ['stress','Stress','inverse',.12],
+    ['emotionalLoad','Emotional load','inverse',.11],
+    ['satisfaction','Satisfaction with effort','normal',.20]
+  ]
+};
+
+let db=loadDB();
+let currentDate=todayISO();
+let activeTab='morning';
+
+function todayISO(){
+  const d=new Date();
+  const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);
+  return local.toISOString().slice(0,10);
+}
+
+function blankDay(date=currentDate){
+  return {date,morning:{},afternoon:{},evening:{},night:{},closed:false,savedAt:{}};
+}
+
+function migrateLegacy(current){
+  // IMPORTANT: this runs while `db` is still being initialized, so it must
+  // operate on the supplied object rather than referencing the `db` variable.
+  if(current && Object.keys(current.days||{}).length)return current;
+  for(const k of LEGACY_KEYS){
+    try{
+      const old=JSON.parse(localStorage.getItem(k));
+      if(old?.days){
+        const migrated={days:old.days,core:{...CORE,...(old.core||{})}};
+        localStorage.setItem(KEY,JSON.stringify(migrated));
+        return migrated;
+      }
+    }catch(e){}
+  }
+  return current;
+}
+
+function loadDB(){
+  let x=null;
+  try{x=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(!x||!x.days)x={days:{},core:CORE};
+  x=migrateLegacy(x)||x;
+  x.core={...CORE,...(x.core||{})};
+  return x;
+}
+
+function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
+function getDay(d=currentDate){
+  if(!db.days[d])db.days[d]=blankDay(d);
+  return db.days[d];
+}
+function pathGet(obj,path){return path.split('.').reduce((o,k)=>o?.[k],obj)}
+function pathSet(obj,path,val){
+  const p=path.split('.');
+  let x=obj;
+  for(let i=0;i<p.length-1;i++){if(!x[p[i]])x[p[i]]={};x=x[p[i]]}
+  x[p[p.length-1]]=val;
+}
+function getField(full){return pathGet(getDay(),full)}
+function setField(full,val){
+  pathSet(getDay(),full,val);
+  persist();
+  renderAll();
+}
+function datePlus(d,n){
+  const x=new Date(d+'T12:00:00');
+  x.setDate(x.getDate()+n);
+  return x.toISOString().slice(0,10);
+}
+function dateDiff(a,b){
+  return Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000);
+}
+
+function parseTime(t){
+  if(!t)return null;
+  const [h,m]=t.split(':').map(Number);
+  return h*60+(m||0);
+}
+
+function workHours(start,end){
+  const a=parseTime(start),b=parseTime(end);
+  if(a===null||b===null)return null;
+  let diff=b-a;
+  if(diff<=0)diff+=1440;
+  return diff/60;
+}
+
+function eventCoversDate(startDate,data,targetDate){
+  if(!data?.startTime||!data?.endTime)return false;
+  const a=parseTime(data.startTime),b=parseTime(data.endTime);
+  if(a===null||b===null)return false;
+
+  const start=new Date(startDate+'T00:00:00');
+  start.setMinutes(a);
+
+  const end=new Date(start);
+  let diff=b-a;
+  if(diff<=0)diff+=1440;
+  end.setMinutes(end.getMinutes()+diff);
+
+  const targetStart=new Date(targetDate+'T00:00:00');
+  const targetEnd=new Date(targetDate+'T23:59:59');
+
+  return start<=targetEnd && end>=targetStart;
+}
+
+function findWorkEventsForDate(d){
+  const out=[];
+  const seen=new Set();
+
+  for(const [src,sd] of Object.entries(db.days||{})){
+    const m=sd.morning||{};
+
+    if(m.workToday==='Yes'&&m.workTodayData&&eventCoversDate(src,m.workTodayData,d)){
+      const key='today|'+src;
+      if(!seen.has(key)){out.push({source:src,kind:'today',data:m.workTodayData});seen.add(key)}
+    }
+
+    if(m.workTomorrow==='Yes'&&m.workTomorrowData){
+      const eventDate=datePlus(src,1);
+      if(eventCoversDate(eventDate,m.workTomorrowData,d)){
+        const key='tomorrow|'+src;
+        if(!seen.has(key)){out.push({source:src,kind:'tomorrow',data:m.workTomorrowData});seen.add(key)}
+      }
+    }
+
+    if(m.workYesterday==='Yes'&&m.workYesterdayData){
+      const eventDate=datePlus(src,-1);
+      if(eventCoversDate(eventDate,m.workYesterdayData,d)){
+        const key='yesterday|'+src;
+        if(!seen.has(key)){out.push({source:src,kind:'yesterday',data:m.workYesterdayData});seen.add(key)}
+      }
+    }
+  }
+
+  return out.sort((a,b)=>(a.data.startTime||'').localeCompare(b.data.startTime||''));
+}
+
+function scheduleState(d=currentDate){
+  /*
+    The current day's Morning answers are the user's explicit override.
+    This prevents a previous day's stored duty event from unexpectedly
+    forcing a POST-DUTY state when the user has explicitly marked
+    "Did you have work yesterday? No".
+    If a question has not been answered, the tracker falls back to the
+    linked historical work events.
+  */
+  const day=(db.days||{})[d]?.morning||{};
+  const explicitToday=day.workToday;
+  const explicitYesterday=day.workYesterday;
+  const explicitTomorrow=day.workTomorrow;
+
+  const today=explicitToday==='Yes'
+    ? workEventsFromAnswer(d,day,'workTodayData','today')
+    : explicitToday==='No' ? [] : findWorkEventsForDate(d);
+
+  const yesterday=explicitYesterday==='Yes'
+    ? workEventsFromAnswer(datePlus(d,-1),day,'workYesterdayData','yesterday')
+    : explicitYesterday==='No' ? [] : findWorkEventsForDate(datePlus(d,-1));
+
+  const tomorrow=explicitTomorrow==='Yes'
+    ? workEventsFromAnswer(datePlus(d,1),day,'workTomorrowData','tomorrow')
+    : explicitTomorrow==='No' ? [] : findWorkEventsForDate(datePlus(d,1));
+
+  if(today.length){
+    const hours=today.reduce((s,e)=>s+(workHours(e.data.startTime,e.data.endTime)||0),0);
+    return {state:'DUTY',label:'DUTY DAY',events:today,hours,yesterday,tomorrow};
+  }
+  if(yesterday.length){
+    const hours=yesterday.reduce((s,e)=>s+(workHours(e.data.startTime,e.data.endTime)||0),0);
+    return {state:'POST-DUTY',label:'POST-DUTY / RECOVERY DAY',events:[],hours,yesterday,tomorrow};
+  }
+  if(tomorrow.length){
+    const hours=tomorrow.reduce((s,e)=>s+(workHours(e.data.startTime,e.data.endTime)||0),0);
+    return {state:'PRE-DUTY',label:'PRE-DUTY DAY',events:[],hours,yesterday,tomorrow};
+  }
+  return {state:'NORMAL',label:'NORMAL STUDY DAY',events:[],hours:0,yesterday,tomorrow};
+}
+
+function workEventsFromAnswer(eventDate,day,field,kind){
+  const data=day?.morning?.[field];
+  if(!data?.startTime||!data?.endTime)return [];
+  return [{source:eventDate,kind,data}];
+}
+
+function scheduleScore(s){
+  /*
+    Schedule score is deliberately strong because duty is a real constraint.
+    It is NOT a mood score.
+  */
+  const h=Number(s.hours||0);
+  if(s.state==='NORMAL')return 5.0;
+  if(s.state==='DUTY'){
+    if(h>=24)return 0.5;
+    if(h>=13)return 1.0;
+    if(h>=8)return 1.5;
+    return 2.5;
+  }
+  if(s.state==='POST-DUTY'){
+    if(h>=24)return 1.5;
+    if(h>=13)return 2.0;
+    if(h>=8)return 2.5;
+    return 3.0;
+  }
+  if(s.state==='PRE-DUTY'){
+    if(h>=24)return 2.5;
+    if(h>=13)return 3.0;
+    if(h>=8)return 3.5;
+    return 4.0;
+  }
+  return 5.0;
+}
+
+function scheduleHardCap(s){
+  if(s.state==='DUTY')return 2.0;
+  if(s.state==='POST-DUTY')return 3.0;
+  if(s.state==='PRE-DUTY')return 4.0;
+  return 5.0;
+}
+
+function scheduleTargetFactor(s){
+  /* Schedule is already in the capacity score. Kept for compatibility. */
+  return 1;
+}
+
+function sleepDurationScore(label){
+  if(!label)return null;
+  if(label.startsWith('< 4'))return 1;
+  if(label.startsWith('4–5'))return 2;
+  if(label.startsWith('5–6'))return 3;
+  if(label.startsWith('6–7'))return 4;
+  return 5; // 7–8 h and >8 h
+}
+
+function timeCapacity(label){
+  if(!label)return null;
+  if(label.includes('<30'))return 1;
+  if(label.includes('30–60'))return 2;
+  if(label.includes('1–2'))return 3;
+  if(label.includes('2–3'))return 4;
+  if(label.includes('3–4'))return 4.5;
+  if(label.includes('4–5') || label.includes('4+'))return 5;
+  if(label.includes('5+'))return 5;
+  return null;
+}
+
+function obligationScore(list){
+  if(!Array.isArray(list)||!list.length||list.includes('Nothing significant')||list.includes('Nothing'))return 5;
+  let score=5;
+  const reductions={
+    'Work preparation':.5,'Travel':.5,'Food':.2,'Sleep':.6,
+    'Personal/admin':.4,'Content creation':.25,'Family/social':.4,
+    'Personal life':.4,'Admin':.4
+  };
+  list.forEach(x=>{if(reductions[x]!==undefined)score-=reductions[x]});
+  return Math.max(1,score);
+}
+
+function normalizedRatingScore(stage){
+  const set=ratingSets[stage]||[];
+  let sum=0,weight=0;
+  set.forEach(([key,,dir,w])=>{
+    const v=Number(getField(stage+'.'+key));
+    if(v>=1&&v<=5){
+      sum+=(dir==='inverse'?6-v:v)*w;
+      weight+=w;
+    }
+  });
+  return weight?sum/weight:null;
+}
+
+function capacityComponents(stage){
+  const functional=normalizedRatingScore(stage);
+  const sleepDuration=sleepDurationScore(getField('morning.sleepDuration'));
+  const sleepQuality=Number(getField('morning.sleepQuality'));
+  const recovery=Number(getField('morning.recovery'));
+
+  const timeLabel=getField(stage+'.availableTime')||getField('morning.availableTime');
+  const obligations=getField(stage+'.obligations')||getField('morning.obligations')||getField('evening.needs');
+
+  const time=timeCapacity(timeLabel);
+  const obligationsScore=obligationScore(obligations);
+  const schedule=scheduleState();
+  const scheduleScoreValue=scheduleScore(schedule);
+
+  const recoveryBlock=(sleepDuration!=null&&sleepQuality>=1&&sleepQuality<=5&&recovery>=1&&recovery<=5)
+    ? (.40*sleepDuration+.30*sleepQuality+.30*recovery)
+    : null;
+
+  return {
+    functional,
+    sleepDuration,
+    sleepQuality:(sleepQuality>=1&&sleepQuality<=5)?sleepQuality:null,
+    recovery:(recovery>=1&&recovery<=5)?recovery:null,
+    recoveryBlock,
+    time,
+    obligations:obligationsScore,
+    schedule:scheduleScoreValue,
+    scheduleState:schedule.state,
+    scheduleHardCap:scheduleHardCap(schedule),
+    timeLabel,
+    obligationLabels:Array.isArray(obligations)?obligations:[]
+  };
+}
+
+function weightedCapacity(stage){
+  const c=capacityComponents(stage);
+
+  /*
+    Transparent weights:
+      Functional ratings       30%
+      Sleep + recovery         20%
+      Usable study time        10%
+      Competing obligations    10%
+      Work/duty schedule       30%
+    Total = 100%.
+
+    Exam pressure is NOT counted as capacity: urgency is not ability.
+    It changes the final question allocation by ±5% instead.
+  */
+  const parts=[
+    [c.functional,.30],
+    [c.recoveryBlock,.20],
+    [c.time,.10],
+    [c.obligations,.10],
+    [c.schedule,.30]
+  ];
+
+  let sum=0,weight=0;
+  parts.forEach(([v,w])=>{
+    if(v!==null&&Number.isFinite(v)){sum+=v*w;weight+=w;}
+  });
+
+  if(weight<.80)return null;
+
+  const raw=Math.max(1,Math.min(5,sum/weight));
+  const rounded=Math.max(1,Math.min(5,Math.round(raw*2)/2));
+
+  /* A duty/post-duty/pre-duty day can never outrank its schedule ceiling. */
+  return Math.min(rounded,c.scheduleHardCap);
+}
+
+function currentCapacity(stage){
+  const c=weightedCapacity(stage);
+  const level=levelFromCapacity(c);
+  return {score:c,level,label:capacityLabel(level),components:capacityComponents(stage)};
+}
+
+function examPressureFactor(v){
+  const n=Number(v);
+  if(!Number.isFinite(n))return 1;
+  return ({1:.95,2:.98,3:1,4:1.03,5:1.05})[n]||1;
+}
+
+function levelFromCapacity(c){
+  if(c===null)return null;
+  if(c<1.5)return 1;
+  if(c<2.5)return 2;
+  if(c<3.5)return 3;
+  if(c<4.5)return 4;
+  return 5;
+}
+
+function capacityLabel(level){
+  return level?CAPACITY_LEVELS[level-1].name:'Not enough data';
+}
+
+
+function completedPMThrough(date){
+  return Object.values(db.days||{})
+    .filter(d=>d.date&&d.date<=date)
+    .reduce((sum,d)=>sum+dailyPM(d),0);
+}
+
+function completedKTThrough(date){
+  return Object.values(db.days||{})
+    .filter(d=>d.date&&d.date<=date)
+    .reduce((sum,d)=>sum+dailyKT(d),0);
+}
+
+function stageRank(stage){
+  return ({morning:0,afternoon:1,evening:2,night:3})[stage]??3;
+}
+
+function completedPMThroughStage(d=getDay(),stage='night'){
+  const rank=stageRank(stage);
+  const vals=[];
+  if(rank>=1)vals.push(Number(d.afternoon?.pmCompleted||0));
+  if(rank>=2)vals.push(Number(d.evening?.pmCompleted||0));
+  if(rank>=3)vals.push(Number(d.night?.pmCompleted||0));
+  return Math.max(0,...vals);
+}
+
+function completedKTThroughStage(d=getDay(),stage='night'){
+  const rank=stageRank(stage);
+  const vals=[];
+  if(rank>=1)vals.push(Number(d.afternoon?.ktCardsCompleted||0));
+  if(rank>=2)vals.push(Number(d.evening?.ktCardsCompleted||0));
+  if(rank>=3)vals.push(Number(d.night?.ktCards||0));
+  return Math.max(0,...vals);
+}
+
+function dailyPM(d=getDay()){
+  return completedPMThroughStage(d,'night');
+}
+
+function dailyKT(d=getDay()){
+  return completedKTThroughStage(d,'night');
+}
+
+function firstPassDeadline(){
+  const x=new Date(db.core.examDate+'T12:00:00');
+  x.setDate(x.getDate()-(db.core.revisionDays+db.core.mockDays));
+  return x.toISOString().slice(0,10);
+}
+
+function targetEngine(stage='morning'){
+  const completed=completedPMThrough(currentDate);
+  const remaining=Math.max(0,db.core.pmStart-completed);
+  const deadline=firstPassDeadline();
+  const daysLeft=Math.max(1,dateDiff(currentDate,deadline)+1);
+  const pace=remaining?Math.ceil(remaining/daysLeft):0;
+
+  const cap=currentCapacity(stage);
+  const capacityFactor=continuousCapacityFactor(cap.score);
+  const urgencyFactor=examPressureFactor(getField('morning.examPressure'));
+
+  let baseTarget=Math.ceil(pace*capacityFactor*urgencyFactor);
+  if(remaining>0)baseTarget=Math.max(1,Math.min(remaining,baseTarget));
+
+  const survival=Math.max(0,Math.min(remaining,
+    Math.ceil(pace*(cap.level===1?.35:.45))
+  ));
+
+  const minimum=Math.max(survival,Math.min(remaining,baseTarget));
+  const target=Math.max(minimum,Math.min(remaining,baseTarget));
+  const stretch=Math.min(remaining,Math.max(target+5,Math.ceil(target*1.25)));
+
+  return {
+    remaining,daysLeft,pace,capacity:cap.score,level:cap.level,
+    capacityLabel:cap.label,schedule: scheduleState(),
+    capacityFactor,urgencyFactor,components:cap.components,
+    survival,minimum,target,stretch,deadline,
+    doneToday:dailyPM(getDay()),
+    remainingToday:Math.max(0,target-dailyPM(getDay()))
+  };
+}
+function ktCardTarget(stage='morning'){
+  return targetEngine(stage).target;
+}
+
+function ktTarget(){
+  const vals=Object.values(db.days||{})
+    .filter(d=>d.closed)
+    .map(d=>Number(d.night?.ktScore))
+    .filter(v=>v>=0&&v<=100);
+
+  const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:db.core.ktBaseline;
+  return {avg,target:80};
+}
+
+function workText(e){
+  const h=workHours(e.data.startTime,e.data.endTime);
+  const overnight=parseTime(e.data.endTime)<=parseTime(e.data.startTime);
+  return `${e.data.startTime} → ${e.data.endTime} · ${h?.toFixed(1)||'?'} h${overnight?' · overnight':''}`;
+}
+
+function currentWorkSummary(){
+  const s=scheduleState();
+  if(s.state==='NORMAL')return 'No work recorded for today. Normal study schedule.';
+  const parts=[];
+  if(s.state==='DUTY'){
+    parts.push('<b>Today:</b> '+s.events.map(e=>workText(e)).join(' · '));
+  }else if(s.state==='POST-DUTY'){
+    parts.push('<b>Yesterday:</b> '+s.yesterday.map(e=>workText(e)).join(' · '));
+  }else if(s.state==='PRE-DUTY'){
+    parts.push('<b>Tomorrow:</b> '+s.tomorrow.map(e=>workText(e)).join(' · '));
+  }
+  return `${parts.join('<br>')}<br><span class="mini-note">Schedule state: ${s.label}.</span>`;
+}
+
+function workControlHTML(field,type){
+  const prefix='morning.'+field;
+  return `
+    <div class="q">
+      <label class="title">Quick shift</label>
+      <div class="btnrow shift-presets" data-work-prefix="${prefix}">
+        <button type="button" class="choice" data-preset="morning13">🌅 Morning · 13 h</button>
+        <button type="button" class="choice" data-preset="evening13">🌙 Evening/Night · 13 h</button>
+        <button type="button" class="choice" data-preset="24h">24 h</button>
+        <button type="button" class="choice" data-preset="26h">26 h</button>
+        <button type="button" class="choice" data-preset="custom">Custom</button>
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="title">Travel burden</label>
+      <select data-field="${prefix}.travel">
+        <option value="">Choose...</option><option>Low</option><option>Moderate</option><option>High</option>
+      </select>
+    </div>
+
+    <div id="${field}Custom" class="hidden">
+      <div class="work-grid">
+        <div><label class="title">Start</label><input type="time" data-field="${prefix}.startTime"></div>
+        <div><label class="title">End</label><input type="time" data-field="${prefix}.endTime"></div>
+        <div>
+          <label class="title">Shift type</label>
+          <select data-field="${prefix}.shiftType">
+            <option value="">Choose...</option>
+            <option>Day duty</option><option>Evening duty</option><option>Night duty</option>
+            <option>Long duty</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="mini-note" style="margin-top:8px">
+      Choose the usual shift with one tap. Start/end fields stay hidden unless you choose Custom.
+      ${type==='yesterday'?'Previous-duty recovery is then carried into today automatically.':''}
+    </div>`;
+}
+
+function bindShiftPresets(root){
+  root.querySelectorAll('.shift-presets').forEach(row=>{
+    if(row.dataset.bound==='1')return;
+    row.dataset.bound='1';
+
+    const prefix=row.dataset.workPrefix;
+    const customBox=document.getElementById(prefix.split('.').pop()+'Custom');
+
+    const presets={
+      morning13:{start:'07:00',end:'20:00',type:'Day duty'},
+      evening13:{start:'20:00',end:'09:00',type:'Night duty'},
+      '24h':{start:'10:00',end:'10:00',type:'Long duty'},
+      '26h':{start:'10:00',end:'12:00',type:'Long duty'}
+    };
+
+    row.querySelectorAll('[data-preset]').forEach(b=>{
+      b.onclick=()=>{
+        const p=b.dataset.preset;
+        if(p==='custom'){
+          customBox?.classList.remove('hidden');
+          row.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));
+          b.classList.add('selected');
+          return;
+        }
+
+        const v=presets[p];
+        if(!v)return;
+        pathSet(getDay(),prefix+'.startTime',v.start);
+        pathSet(getDay(),prefix+'.endTime',v.end);
+        pathSet(getDay(),prefix+'.shiftType',v.type);
+        persist();
+        customBox?.classList.add('hidden');
+        row.querySelectorAll('button').forEach(x=>x.classList.toggle('selected',x===b));
+        renderAll();
+      };
+    });
+
+    const existing=getField(prefix+'.startTime')||getField(prefix+'.endTime');
+    if(existing)customBox?.classList.remove('hidden');
+  });
+}
+
+
+function renderWorkControls(){
+  const m=getDay().morning;
+  ['mTodayWork','mYesterdayWork','mTomorrowWork'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+
+  if(m.workToday==='Yes'){
+    const x=document.getElementById('mTodayWork');
+    x.classList.remove('hidden');x.innerHTML=workControlHTML('workTodayData','today');
+  }
+  if(m.workYesterday==='Yes'){
+    const x=document.getElementById('mYesterdayWork');
+    x.classList.remove('hidden');x.innerHTML=workControlHTML('workYesterdayData','yesterday');
+  }
+  if(m.workTomorrow==='Yes'){
+    const x=document.getElementById('mTomorrowWork');
+    x.classList.remove('hidden');x.innerHTML=workControlHTML('workTomorrowData','tomorrow');
+  }
+
+  ['mTodayWork','mYesterdayWork','mTomorrowWork'].forEach(id=>{
+    const x=document.getElementById(id);
+    if(!x.classList.contains('hidden')){
+      makeButtons(x);bindDynamic(x);restoreFields(x);bindShiftPresets(x);
+    }
+  });
+}
+
+function makeButtons(root=document){
+  root.querySelectorAll('.btnrow[data-options]').forEach(el=>{
+    if(el.children.length)return;
+    el.dataset.options.split(',').forEach(v=>{
+      const b=document.createElement('button');
+      b.type='button';
+      b.className=el.dataset.type==='score'?'score':'choice';
+      b.textContent=v;
+      b.dataset.val=v.trim();
+      el.appendChild(b);
+    });
+  });
+}
+
+function highlight(el){
+  const val=getField(el.dataset.field);
+  el.querySelectorAll('button').forEach(b=>{
+    const on=el.dataset.type==='multi'
+      ?Array.isArray(val)&&val.includes(b.dataset.val)
+      :String(val)===String(b.dataset.val);
+    b.classList.toggle('selected',on);
+  });
+}
+
+function bindDynamic(root=document){
+  root.querySelectorAll('[data-field]').forEach(el=>{
+    if(el.dataset.bound==='1')return;
+    el.dataset.bound='1';
+
+    const field=el.dataset.field;
+    const type=el.dataset.type;
+
+    if(type==='choice'||type==='score'){
+      el.querySelectorAll('button').forEach(b=>{
+        b.onclick=()=>{
+          setField(field,b.dataset.val);
+        };
+      });
+    }else if(type==='multi'){
+      el.querySelectorAll('button').forEach(b=>{
+        b.onclick=()=>{
+          let v=getField(field);
+          if(!Array.isArray(v))v=[];
+          const val=b.dataset.val;
+          v=v.includes(val)?v.filter(x=>x!==val):[...v,val];
+          setField(field,v);
+        };
+      });
+    }else if(el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='TEXTAREA'){
+      el.onchange=()=>setField(field,el.value);
+      if(el.tagName==='TEXTAREA')el.oninput=()=>setField(field,el.value);
+    }
+  });
+}
+
+function restoreFields(root=document){
+  root.querySelectorAll('[data-field]').forEach(el=>{
+    const val=getField(el.dataset.field);
+    if(el.dataset.type==='choice'||el.dataset.type==='score'||el.dataset.type==='multi'){
+      highlight(el);
+      const valueSpan=document.querySelector(`[data-value="${el.dataset.field}"]`);
+      if(valueSpan)valueSpan.textContent=Array.isArray(val)?val.length:(val??'—');
+    }else if(val!==undefined&&val!==null&&el.value!==undefined){
+      el.value=val;
+    }
+  });
+}
+
+function renderRatings(){
+  Object.entries(ratingSets).forEach(([stage,set])=>{
+    const host=document.getElementById(stage+'Ratings');
+    if(!host)return;
+    host.innerHTML=set.map(([key,label])=>`
+      <div class="rating">
+        <div class="name">${label} <span data-value="${stage}.${key}">—</span>/5</div>
+        <div class="btnrow" data-field="${stage}.${key}" data-type="score" data-options="1,2,3,4,5"></div>
+      </div>`).join('');
+    makeButtons(host);bindDynamic(host);restoreFields(host);
+  });
+}
+
+function capacityLevelHTML(c){
+  return `<div class="capacity-levels">${
+    CAPACITY_LEVELS.map(x=>`
+      <div class="cap-level ${c.level===x.level?'current':''}">
+        <b>${x.level}. ${x.name}</b>
+        <div class="num">${x.scores.map(v=>v.toFixed(1)).join(' · ')}</div>
+        <div class="mini-note">${x.study}</div>
+      </div>`).join('')
+  }</div>`;
+}
+
+function scheduleExplanation(t){
+  const s=t.schedule;
+  if(s.state==='DUTY')return `🩺 <b>DUTY DAY:</b> schedule ceiling ${scheduleHardCap(s).toFixed(1)}/5. A high mood/energy score cannot turn a duty day into a normal study day.`;
+  if(s.state==='POST-DUTY')return `🛌 <b>POST-DUTY:</b> recovery is protected. Schedule ceiling ${scheduleHardCap(s).toFixed(1)}/5.`;
+  if(s.state==='PRE-DUTY')return `⏳ <b>PRE-DUTY:</b> tomorrow's duty is included. Schedule ceiling ${scheduleHardCap(s).toFixed(1)}/5.`;
+  if(t.level===1)return `🫂 <b>RECOVERY LEVEL:</b> preserve continuity rather than manufacture a heroic study day.`;
+  return `✅ <b>NORMAL DAY:</b> no work-related capacity ceiling is active.`;
+}
+
+function tierHTML(t){
+  const cap=t.capacity===null?'—':t.capacity.toFixed(1);
+  return `
+    <div class="statgrid">
+      <div class="stat"><div class="big">${cap}</div><div class="small">Assigned capacity /5</div></div>
+      <div class="stat"><div class="big">${t.pace}</div><div class="small">Required average pace/day</div></div>
+      <div class="stat"><div class="big">${t.daysLeft}</div><div class="small">First-pass days left</div></div>
+      <div class="stat"><div class="big">${t.remaining}</div><div class="small">PM remaining overall</div></div>
+    </div>
+
+    ${capacityLevelHTML(t)}
+
+    <div class="callout">
+      <b>Capacity → question multiplier</b><br>
+      ${t.capacity===null?'—':continuousCapacityFactor(t.capacity).toFixed(2)}×
+      <br><span class="mini-note"><b>3.5 = exactly 1.00×.</b> Below 3.5 is less than ideal pace; above 3.5 is more.</span>
+      <div class="mini-note" style="margin-top:8px">
+        <b>Exact mapping:</b>
+        ${CAPACITY_POINTS.map(([x,f])=>`${x.toFixed(1)} → ${f.toFixed(2)}×`).join(' · ')}
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>How the capacity score is calculated</b><br>
+      Functional ratings <b>30%</b> · Sleep + recovery <b>20%</b> · Usable study time <b>10%</b> ·
+      Competing obligations <b>10%</b> · Work/duty schedule <b>30%</b>.
+      <br><span class="mini-note">
+      Sleep + recovery = sleep duration <b>40%</b> + sleep quality <b>30%</b> + recovery from previous work <b>30%</b>.
+      Stress, emotional load, travel fatigue and admin burden are inverse-scored (5 = least burden, 1 = most burden).
+      The weighted raw score is rounded to the nearest 0.5, then the schedule hard-cap is applied.
+      Exam pressure does <b>not</b> create capacity; it changes question allocation by only −5% to +5%.
+      </span>
+    </div>
+
+    ${t.components?`
+    <div class="callout">
+      <b>Today's component scores</b><br>
+      Function ${t.components.functional===null?'—':t.components.functional.toFixed(2)}/5 ·
+      Sleep duration ${t.components.sleepDuration===null?'—':t.components.sleepDuration.toFixed(1)}/5 ·
+      Sleep quality ${t.components.sleepQuality===null?'—':t.components.sleepQuality.toFixed(1)}/5 ·
+      Recovery ${t.components.recovery===null?'—':t.components.recovery.toFixed(1)}/5 ·
+      Time ${t.components.time===null?'—':t.components.time.toFixed(1)}/5 ·
+      Obligations ${t.components.obligations===null?'—':t.components.obligations.toFixed(1)}/5 ·
+      Schedule ${t.components.schedule.toFixed(1)}/5.
+      <br><span class="mini-note">Schedule hard-cap: ${t.components.scheduleHardCap.toFixed(1)}/5.</span>
+    </div>`:''}
+
+    <div class="tiers">
+      <div class="tier survival"><b>🪫 SURVIVAL</b><div class="num">${t.survival} PM</div><div class="mini-note">Keep continuity.</div></div>
+      <div class="tier minimum"><b>🔒 MINIMUM</b><div class="num">${t.minimum} PM</div><div class="mini-note">Protect the schedule.</div></div>
+      <div class="tier target"><b>🎯 TARGET</b><div class="num">${t.target} PM</div><div class="mini-note">Today's realistic working target.</div></div>
+      <div class="tier stretch"><b>🚀 STRETCH</b><div class="num">${t.stretch} PM</div><div class="mini-note">Only if the day still has capacity.</div></div>
+    </div>
+
+    <div class="strict">${scheduleExplanation(t)}</div>
+
+    <div class="callout">
+      <b>Today's allocation:</b> ${t.target} PM · ${ktCardTarget()} KT cards.
+      <br><span class="mini-note">The target starts from the remaining syllabus pace, then applies the exact capacity multiplier and exam-pressure adjustment. Work/duty remains a hard constraint through the capacity ceiling.</span>
+    </div>
+
+    <div class="footer-note">
+      First-pass deadline: ${t.deadline} · Exam: ${db.core.examDate} · Protected revision + mocks: ${db.core.revisionDays+db.core.mockDays} days.
+    </div>`;
+}
+
+function renderTargets(){
+  const mt=targetEngine('morning');
+  const at=targetEngine('afternoon');
+  const et=targetEngine('evening');
+
+  document.getElementById('morningVerdict').innerHTML=`
+    <div class="verdict">
+      <div class="capacity">LEVEL ${mt.level??'—'} · ${mt.capacityLabel} · ${mt.capacity===null?'—':mt.capacity.toFixed(1)} / 5</div>
+      ${tierHTML(mt)}
+    </div>`;
+
+  document.getElementById('aPmTarget').textContent=at.target;
+  document.getElementById('aKtCardTarget').textContent=at.target;
+  document.getElementById('aPmDone').textContent=completedPMThroughStage(getDay(),'afternoon');
+  document.getElementById('aKtDone').textContent=completedKTThroughStage(getDay(),'afternoon');
+
+  const apm=document.getElementById('aPmInput');
+  if(apm)apm.value=completedPMThroughStage(getDay(),'afternoon');
+  const akt=document.getElementById('aKtCardsInput');
+  if(akt)akt.value=completedKTThroughStage(getDay(),'afternoon');
+
+  document.getElementById('afternoonVerdict').innerHTML=`
+    <div class="verdict">
+      <div class="capacity">LEVEL ${at.level??'—'} · ${at.capacityLabel} · ${at.capacity===null?'—':at.capacity.toFixed(1)} / 5</div>
+      ${tierHTML(at)}
+    </div>
+    <div class="mini-note" style="margin-top:10px"><b>Still left for today's target:</b> ${Math.max(0,at.target-completedPMThroughStage(getDay(),'afternoon'))} PM · ${Math.max(0,at.target-completedKTThroughStage(getDay(),'afternoon'))} KT cards.</div>`;
+
+  document.getElementById('ePmDone').textContent=completedPMThroughStage(getDay(),'evening');
+  document.getElementById('eKtDone').textContent=completedKTThroughStage(getDay(),'evening');
+  document.getElementById('ePmTarget').textContent=et.target;
+  document.getElementById('eKtTargetStat').textContent=et.target;
+
+  const epm=document.getElementById('ePmCompletedInput');
+  if(epm)epm.value=completedPMThroughStage(getDay(),'evening');
+  const ekt=document.getElementById('eKtCompletedInput');
+  if(ekt)ekt.value=completedKTThroughStage(getDay(),'evening');
+
+  const kt=ktTarget();
+  document.getElementById('ktTargetMessage').innerHTML=
+    `🧠 <b>KT accuracy target tonight: ≥${kt.target}%</b><br>
+     <span class="mini-note">Historical average: ${kt.avg.toFixed(0)}%. The target is fixed at ≥80%; a poor historical average does not lower the standard.</span>`;
+
+  document.getElementById('eveningRemainingMessage').innerHTML=
+    `<b>Remaining for today's current target:</b> ${Math.max(0,et.target-completedPMThroughStage(getDay(),'evening'))} PM · ${Math.max(0,et.target-completedKTThroughStage(getDay(),'evening'))} KT cards.`;
+
+  document.getElementById('eveningVerdict').innerHTML=`
+    <div class="verdict">
+      <div class="capacity">LEVEL ${et.level??'—'} · ${et.capacityLabel} · ${et.capacity===null?'—':et.capacity.toFixed(1)} / 5</div>
+      ${tierHTML(et)}
+    </div>`;
+}
+
+function renderWorkSummaries(){
+  document.getElementById('aWorkSummary').innerHTML=currentWorkSummary();
+  document.getElementById('eWorkSummary').innerHTML=currentWorkSummary();
+}
+
+function renderNight(){
+  const d=getDay();
+  const t=targetEngine('evening');
+  const kt=ktTarget();
+
+  const pm=completedPMThroughStage(d,'night');
+  const cards=completedKTThroughStage(d,'night');
+  const score=d.night?.ktScore;
+
+  document.getElementById('nightScorecard').innerHTML=`
+    <div class="statgrid">
+      <div class="stat"><div class="big">${pm}</div><div class="small">PM completed</div></div>
+      <div class="stat"><div class="big">${cards}</div><div class="small">KT cards completed</div></div>
+      <div class="stat"><div class="big">${t.target}</div><div class="small">Today's target</div></div>
+      <div class="stat"><div class="big">${score??'—'}%</div><div class="small">KT score</div></div>
+    </div>
+
+    <div class="grid2" style="margin-top:16px">
+      <div class="q"><label class="title">PassMedicine cards completed today</label><input type="number" min="0" value="${pm}" id="nightPmCards"></div>
+      <div class="q"><label class="title">Knowledge Tutor cards completed today</label><input type="number" min="0" value="${cards}" id="nightKtCards"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="q"><label class="title">PassMedicine average score today (%)</label><input type="number" min="0" max="100" value="${d.night?.pmScore??''}" id="nightPmScore"></div>
+      <div class="q"><label class="title">Knowledge Tutor final score today (%)</label><input type="number" min="0" max="100" value="${score??''}" id="nightKtScore"></div>
+    </div>
+
+    <div class="strict">🧠 <b>KT scoring target: ≥80%</b> · Final accuracy is logged here only.</div>
+    <div class="mini-note">Schedule today: ${scheduleState().label} · ${currentWorkSummary()}</div>`;
+
+  document.getElementById('nightPmCards').onchange=e=>setField('night.pmCompleted',Math.max(0,Number(e.target.value)||0));
+  document.getElementById('nightKtCards').onchange=e=>setField('night.ktCards',Math.max(0,Number(e.target.value)||0));
+  document.getElementById('nightPmScore').onchange=e=>setField('night.pmScore',Math.min(100,Math.max(0,Number(e.target.value)||0)));
+  document.getElementById('nightKtScore').onchange=e=>setField('night.ktScore',Math.min(100,Math.max(0,Number(e.target.value)||0)));
+
+  document.getElementById('patterns').innerHTML=patternsHTML();
+  document.getElementById('tomorrowPreview').innerHTML=tomorrowHTML();
+  document.getElementById('historyCount').textContent=Object.values(db.days).filter(d=>d.closed).length;
+}
+
+function patternsHTML(){
+  const days=Object.values(db.days).filter(d=>d.closed);
+  if(!days.length)return '<div class="mini-note">Close a few days and the tracker will start identifying patterns.</div>';
+
+  const pm=days.map(d=>dailyPM(d));
+  const kt=days.map(d=>Number(d.night?.ktScore)).filter(x=>x>=0);
+  const cap=days.map(d=>capacityForDay(d)).filter(x=>x!==null);
+
+  const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'—';
+
+  return `
+    <div class="grid3">
+      <div class="stat"><div class="big">${avg(pm)}</div><div class="small">Historical PM/day</div></div>
+      <div class="stat"><div class="big">${avg(kt)}%</div><div class="small">Historical KT accuracy</div></div>
+      <div class="stat"><div class="big">${avg(cap)}</div><div class="small">Historical capacity</div></div>
+    </div>
+    <div class="strict" style="margin-top:12px">
+      The tracker learns from repeated patterns, not one bad day. If duty days repeatedly produce lower output, that is a scheduling reality — not a character flaw.
+    </div>`;
+}
+
+function tomorrowHTML(){
+  const nd=datePlus(currentDate,1);
+  const work=findWorkEventsForDate(nd);
+  const current=targetEngine('evening');
+  const days=Object.values(db.days).filter(d=>d.closed);
+  const pm=days.map(d=>dailyPM(d));
+  const kt=days.map(d=>Number(d.night?.ktScore)).filter(x=>x>=0);
+  const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'—';
+
+  return `
+    <div class="statgrid">
+      <div class="stat"><div class="big">${work.length?'Yes':'No'}</div><div class="small">Tomorrow's work</div></div>
+      <div class="stat"><div class="big">${work.length?work.reduce((s,e)=>s+(workHours(e.data.startTime,e.data.endTime)||0),0).toFixed(1):0} h</div><div class="small">Expected work</div></div>
+      <div class="stat"><div class="big">${current.remaining}</div><div class="small">PM remaining overall</div></div>
+      <div class="stat"><div class="big">${Math.max(0,dateDiff(currentDate,db.core.examDate))}</div><div class="small">Days to exam</div></div>
+    </div>
+    <div style="margin-top:12px"><b>Historical PM average:</b> ${avg(pm)} · <b>Historical KT average:</b> ${avg(kt)}%</div>
+    <div class="strict">Tomorrow will recalculate from the actual schedule and history. You do not have to invent tomorrow's target tonight.</div>`;
+}
+
+function capacityForDay(d){
+  const set=ratingSets.morning;
+  let functionalSum=0,functionalWeight=0;
+  set.forEach(([k,,dir,w])=>{
+    const v=Number(d.morning?.[k]);
+    if(v>=1&&v<=5){
+      functionalSum+=(dir==='inverse'?6-v:v)*w;
+      functionalWeight+=w;
+    }
+  });
+  const functional=functionalWeight?functionalSum/functionalWeight:null;
+  const sleepDuration=sleepDurationScore(d.morning?.sleepDuration);
+  const sleepQuality=Number(d.morning?.sleepQuality);
+  const recovery=Number(d.morning?.recovery);
+  const recoveryBlock=(sleepDuration!=null&&sleepQuality>=1&&sleepQuality<=5&&recovery>=1&&recovery<=5)
+    ?(.40*sleepDuration+.30*sleepQuality+.30*recovery):null;
+  const time=timeCapacity(d.morning?.availableTime);
+  const obligations=obligationScore(d.morning?.obligations);
+  const s=scheduleStateForDate(d.date);
+  const sched=scheduleScore(s);
+  const hard=scheduleHardCap(s);
+  const parts=[[functional,.30],[recoveryBlock,.20],[time,.10],[obligations,.10],[sched,.30]];
+  let sum=0,w=0;
+  parts.forEach(([v,wt])=>{if(v!==null&&Number.isFinite(v)){sum+=v*wt;w+=wt;}});
+  if(w<.80)return null;
+  return Math.min(hard,Math.max(1,Math.min(5,Math.round((sum/w)*2)/2)));
+}
+
+function renderStudyRunway(){
+  const t=targetEngine('morning');
+  const donePM=dailyPM();
+  const doneKT=dailyKT();
+  const targetPM=t.target;
+  const targetKT=t.target;
+  const totalTarget=Math.max(1,targetPM+targetKT);
+  const totalDone=Math.min(targetPM,donePM)+Math.min(targetKT,doneKT);
+  const pct=Math.min(100,Math.max(0,totalDone/totalTarget*100));
+
+  document.getElementById('runwayNumbers').textContent=
+    `${Math.max(0,targetPM-donePM)} PM · ${Math.max(0,targetKT-doneKT)} KT cards left`;
+
+  document.getElementById('runwayFill').style.width=pct.toFixed(0)+'%';
+
+  const s=scheduleState();
+  document.getElementById('runwaySub').textContent=
+    `${s.label} · Level ${t.level??'—'} ${t.capacityLabel??''} · ${pct.toFixed(0)}% of today's current target completed.`;
+}
+
+function saveStage(stage){
+  getDay().savedAt[stage]=new Date().toISOString();
+  persist();
+  document.getElementById(stage+'Status').textContent='✓ Saved — '+currentDate;
+  renderHistory();
+}
+
+function closeDay(){
+  const d=getDay();
+
+  d.night.pmCompleted=Math.max(0,Number(document.getElementById('nightPmCards')?.value)||0);
+  d.night.ktCards=Math.max(0,Number(document.getElementById('nightKtCards')?.value)||0);
+  d.night.ktScore=Math.min(100,Math.max(0,Number(document.getElementById('nightKtScore')?.value)||0));
+  d.night.pmScore=Math.min(100,Math.max(0,Number(document.getElementById('nightPmScore')?.value)||0));
+
+  d.savedAt.night=new Date().toISOString();
+  d.closed=true;
+  persist();
+
+  document.getElementById('nightStatus').textContent='✓ Day closed — '+currentDate;
+  renderAll();
+}
+
+function renderHistory(){
+  const rows=Object.values(db.days)
+    .filter(d=>d.closed)
+    .sort((a,b)=>b.date.localeCompare(a.date));
+
+  const body=document.getElementById('historyTable');
+  if(!body)return;
+
+  body.innerHTML=rows.map(d=>{
+    const s=scheduleStateForDate(d.date);
+    const pm=dailyPM(d),kt=dailyKT(d),score=d.night?.ktScore;
+    const cap=capacityForDay(d);
+
+    return `<tr>
+      <td>${d.date}</td>
+      <td>${s.label}</td>
+      <td>${pm}</td>
+      <td>${kt}</td>
+      <td>${score??'—'}%</td>
+      <td>${cap===null?'—':cap.toFixed(1)}</td>
+      <td class="good">Closed</td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="7" class="mini-note">No closed days yet.</td></tr>';
+}
+
+function scheduleStateForDate(d){
+  const today=findWorkEventsForDate(d);
+  const yesterday=findWorkEventsForDate(datePlus(d,-1));
+  const tomorrow=findWorkEventsForDate(datePlus(d,1));
+
+  if(today.length){
+    const hours=today.reduce((s,e)=>s+(workHours(e.data.startTime,e.data.endTime)||0),0);
+    return {state:'DUTY',label:'DUTY',hours};
+  }
+  if(yesterday.length){
+    const hours=yesterday.reduce((s,e)=>s+(workHours(e.data.startTime,e.data.endTime)||0),0);
+    return {state:'POST-DUTY',label:'POST-DUTY',hours};
+  }
+  if(tomorrow.length){
+    const hours=tomorrow.reduce((s,e)=>s+(workHours(e.data.startTime,e.data.endTime)||0),0);
+    return {state:'PRE-DUTY',label:'PRE-DUTY',hours};
+  }
+  return {state:'NORMAL',label:'NORMAL',hours:0};
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='personal-study-tracker-history-v2.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),500);
+}
+
+function importData(e){
+  const file=e.target.files[0];
+  if(!file)return;
+
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const x=JSON.parse(r.result);
+      if(!x.days)throw new Error('Invalid tracker data');
+      db=x;
+      db.core={...CORE,...(db.core||{})};
+      persist();
+      renderAll();
+      alert('History imported successfully.');
+    }catch(err){
+      alert('That file is not a valid tracker history.');
+    }
+    e.target.value='';
+  };
+  r.readAsText(file);
+}
+
+function bindBasics(){
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+
+  document.getElementById('trackerDate').onchange=e=>{
+    currentDate=e.target.value||todayISO();
+    getDay(currentDate);
+    persist();
+    renderAll();
+  };
+
+  document.getElementById('aPmInput').onchange=e=>{
+    getDay().afternoon.pmCompleted=Math.max(0,Number(e.target.value)||0);
+    persist();renderAll();
+  };
+  document.getElementById('aKtCardsInput').onchange=e=>{
+    getDay().afternoon.ktCardsCompleted=Math.max(0,Number(e.target.value)||0);
+    persist();renderAll();
+  };
+  document.getElementById('ePmCompletedInput').onchange=e=>{
+    getDay().evening.pmCompleted=Math.max(0,Number(e.target.value)||0);
+    persist();renderAll();
+  };
+  document.getElementById('eKtCompletedInput').onchange=e=>{
+    getDay().evening.ktCardsCompleted=Math.max(0,Number(e.target.value)||0);
+    persist();renderAll();
+  };
+  document.getElementById('importFile').onchange=importData;
+}
+
+function showTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('hidden',p.id!==tab));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  renderAll();
+}
+
+function renderAll(){
+  getDay(currentDate);
+  document.getElementById('trackerDate').value=currentDate;
+
+  renderRatings();
+  renderWorkControls();
+
+  makeButtons(document);
+  bindDynamic(document);
+  restoreFields(document);
+
+  renderWorkSummaries();
+  renderTargets();
+  renderNight();
+  renderHistory();
+  renderStudyRunway();
+}
+
+function setup(){
+  document.getElementById('trackerDate').value=currentDate;
+  getDay(currentDate);
+  makeButtons(document);
+  bindBasics();
+  renderAll();
+}
+
+setup();
+</script>
+</body>
+</html>
