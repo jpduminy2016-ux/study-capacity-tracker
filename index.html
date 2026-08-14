@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Personal Study & Capacity Tracker v1.5</title>
+<style>
+:root{
+  --purple:#76568f; --purple2:#8b6aa5; --pale:#f5f0f8; --bg:#f5f3f1;
+  --ink:#29272a; --muted:#706b70; --line:#e6e0e8; --blue:#147fe8;
+  --green:#2e8b57; --amber:#d88a13; --red:#c64a4a;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+header{background:#fff;position:sticky;top:0;z-index:20;border-bottom:1px solid #ddd}
+.top{max-width:1160px;margin:auto;padding:14px 18px 10px;display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:800;font-size:18px;color:var(--purple);display:flex;gap:8px;align-items:center}
+.badge{font-size:12px;background:#eee6f2;color:var(--purple);padding:3px 7px;border-radius:10px}
+.datebox{display:flex;align-items:center;gap:10px;font-weight:700}
+input[type=date],select,input[type=number],input[type=text],textarea{font:inherit;border:1px solid #d8d2da;border-radius:10px;padding:9px 11px;background:#fff;color:var(--ink)}
+.tabs{max-width:1160px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{border:0;background:#fff;padding:12px 8px;font-weight:800;font-size:15px;cursor:pointer;border-bottom:3px solid transparent;color:#27242a}
+.tab.active{color:var(--purple);border-bottom-color:var(--purple)}
+main{max-width:1160px;margin:auto;padding:24px 18px 90px}
+.pagehead h1{font-size:28px;margin:0 0 2px}
+.pagehead p{margin:0 0 22px;color:var(--muted)}
+.card{background:#fff;border-radius:22px;padding:20px 22px;margin:16px 0;box-shadow:0 2px 12px rgba(50,35,60,.06)}
+.card h2{font-size:20px;margin:0 0 18px}
+.q{margin:14px 0}
+.q label.title{display:block;font-weight:700;margin-bottom:8px}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.choice,.score{border:1px solid #ddd7df;background:#fff;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;transition:.15s}
+.choice:hover,.score:hover{border-color:var(--purple2)}
+.choice.selected,.score.selected{background:var(--pale);border-color:var(--purple);color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple)}
+.hidden{display:none!important}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:#faf8fb;border:1px solid var(--line);border-radius:15px;padding:14px}
+.stat .big{font-size:25px;font-weight:900;color:var(--purple)}
+.stat .small{font-size:13px;color:var(--muted)}
+.workbox{background:var(--pale);padding:12px 14px;border-radius:12px;color:#4d4054;font-weight:700}
+.rating{display:grid;grid-template-columns:170px 1fr;align-items:center;gap:12px;margin:13px 0}
+.rating .name{font-weight:700}
+.mini-note{font-size:13px;color:var(--muted)}
+.verdict{border-left:5px solid var(--purple);background:#f8f5fa;padding:15px;border-radius:12px;margin-top:15px}
+.verdict .capacity{font-size:24px;font-weight:900;color:var(--purple)}
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.tier{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff}
+.tier b{display:block;margin-bottom:5px}
+.tier .num{font-size:22px;font-weight:900}
+.survival{border-top:4px solid #777}.minimum{border-top:4px solid var(--red)}.target{border-top:4px solid var(--purple)}.stretch{border-top:4px solid var(--green)}
+.strict{margin-top:14px;background:#fff6e8;border:1px solid #f0d4a6;border-radius:13px;padding:13px;font-weight:800}
+.danger{color:var(--red)}.good{color:var(--green)}
+.savebar{position:sticky;bottom:10px;z-index:10;background:rgba(255,255,255,.96);border:1px solid var(--line);box-shadow:0 5px 20px rgba(0,0,0,.1);border-radius:15px;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.savebtn{background:var(--purple);color:white;border:0;border-radius:12px;padding:13px 18px;font-weight:900;cursor:pointer}
+.savebtn:hover{background:#65477d}
+.secondary{background:#fff;color:var(--purple);border:1px solid #d7cadf}
+textarea{width:100%;min-height:80px;resize:vertical}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--muted)}
+.history-wrap{overflow:auto}
+.smallbtn{border:1px solid #ddd7df;background:#fff;border-radius:9px;padding:7px 10px;cursor:pointer;font-weight:700}
+.footer-note{font-size:12px;color:var(--muted);margin-top:8px}
+
+.study-runway{
+  position:sticky;
+  top:0;
+  z-index:18;
+  background:rgba(255,255,255,.97);
+  border-bottom:1px solid var(--line);
+  box-shadow:0 3px 12px rgba(80,60,90,.08);
+  padding:10px 5%;
+}
+.runway-inner{max-width:1180px;margin:auto}
+.runway-head{display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:800;color:var(--purple)}
+.runway-label{font-size:14px}
+.runway-numbers{font-size:13px;color:var(--ink)}
+.runway-track{height:12px;background:#eee8f1;border-radius:999px;overflow:hidden;margin-top:7px}
+.runway-fill{height:100%;background:var(--purple);border-radius:999px;transition:width .25s ease}
+.runway-sub{font-size:11px;color:var(--muted);margin-top:5px}
+@media(max-width:520px){
+  .runway-head{align-items:flex-start;flex-direction:column;gap:3px}
+}
+@media(max-width:800px){
+  .grid2,.grid3,.statgrid,.tiers{grid-template-columns:1fr 1fr}
+  .rating{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .grid2,.grid3,.statgrid,.tiers{grid-template-columns:1fr}
+  .top{align-items:flex-start;gap:10px;flex-direction:column}
+  .tabs{position:sticky;top:72px;z-index:19}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="brand">🧠 Personal Study & Capacity Tracker <span class="badge">v1.4</span></div>
+    <div class="datebox">Tracker date <input id="trackerDate" type="date"></div>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="morning">🌅 Morning</button>
+    <button class="tab" data-tab="afternoon">☀️ Afternoon</button>
+    <button class="tab" data-tab="evening">🌆 Evening</button>
+    <button class="tab" data-tab="night">🌙 Night</button>
+  </nav>
+</header>
+
+<div class="study-runway">
+  <div class="runway-inner">
+    <div class="runway-head">
+      <div class="runway-label">📚 TODAY'S STUDY RUNWAY</div>
+      <div class="runway-numbers" id="runwayNumbers">Loading today's remaining target…</div>
+    </div>
+    <div class="runway-track"><div class="runway-fill" id="runwayFill" style="width:0%"></div></div>
+    <div class="runway-sub" id="runwaySub">This stays visible as you move through Morning → Afternoon → Evening → Night.</div>
+  </div>
+</div>
+
+<main>
+<section id="morning" class="panel">
+  <div class="pagehead">
+    <h1>🌅 How Much Brain in the Tank?</h1>
+    <p>Today isn't a feelings contest. We measure the load, calculate the capacity, and then you do the work you can actually carry.</p>
+  </div>
+
+  <div class="card">
+    <h2>1. 🏥 Work First</h2>
+    <div class="q"><label class="title">Do you have work today?</label><div class="btnrow" data-field="morning.workToday" data-type="choice" data-options="Yes,No"></div></div>
+    <div id="mTodayWork" class="hidden"></div>
+
+    <div class="q"><label class="title">Did you have work yesterday?</label><div class="btnrow" data-field="morning.workYesterday" data-type="choice" data-options="Yes,No"></div></div>
+    <div id="mYesterdayWork" class="hidden"></div>
+
+    <div class="q"><label class="title">Do you have work tomorrow?</label><div class="btnrow" data-field="morning.workTomorrow" data-type="choice" data-options="Yes,No"></div></div>
+    <div id="mTomorrowWork" class="hidden"></div>
+  </div>
+
+  <div class="card">
+    <h2>2. 😴 Recovery</h2>
+    <div class="grid2">
+      <div class="q"><label class="title">Sleep duration</label><select data-field="morning.sleepDuration">
+        <option value="">Choose...</option><option>&lt; 4 h</option><option>4–5 h</option><option>5–6 h</option><option>6–7 h</option><option>7–8 h</option><option>&gt;8 h</option>
+      </select></div>
+      <div class="q"><label class="title">Sleep quality <span data-value="morning.sleepQuality">—</span>/5</label><div class="btnrow" data-field="morning.sleepQuality" data-type="score" data-options="1,2,3,4,5"></div></div>
+    </div>
+    <div class="q"><label class="title">Recovery from previous work <span data-value="morning.recovery">—</span>/5</label><div class="btnrow" data-field="morning.recovery" data-type="score" data-options="1,2,3,4,5"></div></div>
+  </div>
+
+  <div class="card">
+    <h2>3. 🧠 Capacity — 1–5</h2>
+    <div id="morningRatings"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. 📚 Exam pressure — “The January reality check”</h2>
+    <div class="q"><label class="title">How urgently do you feel you need to study today? <span data-value="morning.examPressure">—</span>/5</label><div class="btnrow" data-field="morning.examPressure" data-type="score" data-options="1,2,3,4,5"></div></div>
+  </div>
+
+  <div class="card">
+    <h2>5. 🧮 Your Morning Verdict</h2>
+    <div id="morningVerdict"></div>
+  </div>
+
+  <div class="savebar"><span id="morningStatus">Not saved yet.</span><button class="savebtn" onclick="saveStage('morning')">SAVE MORNING CHECK-IN</button></div>
+</section>
+
+<section id="afternoon" class="panel hidden">
+  <div class="pagehead"><h1>☀️ Still Got Gas?</h1><p>Morning made the plan. Afternoon checks whether reality agreed.</p></div>
+  <div class="card">
+    <h2>1. 🏥 Work Check — “What happened to the plan?”</h2>
+    <div id="aWorkSummary" class="workbox"></div>
+    <div class="q"><label class="title">Has anything changed about today's work?</label><div class="btnrow" data-field="afternoon.workChange" data-type="choice" data-options="No change,Started earlier,Starts later,Ending earlier,Ending later,Cancelled,New/additional work"></div></div>
+    <div id="aWorkChangeBox" class="hidden"></div>
+  </div>
+  <div class="card">
+    <h2>2. 📊 Actual Progress</h2>
+    <div class="statgrid">
+      <div class="stat"><div id="aPmTarget" class="big">0</div><div class="small">Morning PM target</div></div>
+      <div class="stat"><div id="aKtCardTarget" class="big">0</div><div class="small">Morning KT target</div></div>
+      <div class="stat"><div id="aPmDone" class="big">0</div><div class="small">PM completed</div></div>
+      <div class="stat"><div id="aKtDone" class="big">0</div><div class="small">KT completed</div></div>
+    </div>
+    <div class="grid2" style="margin-top:15px">
+      <div class="q"><label class="title">PM completed so far today</label><input type="number" min="0" id="aPmInput"></div>
+      <div class="q"><label class="title">KT cards completed so far today</label><input type="number" min="0" id="aKtCardsInput"></div>
+    </div>
+    <div class="q"><label class="title">Study productivity <span data-value="afternoon.productivity">—</span>/5</label><div class="btnrow" data-field="afternoon.productivity" data-type="score" data-options="1,2,3,4,5"></div></div>
+  </div>
+  <div class="card"><h2>3. 🧠 Current Capacity</h2><div id="afternoonRatings"></div></div>
+  <div class="card">
+    <h2>4. 🧳 What's left of today?</h2>
+    <div class="q"><label class="title">How much usable study time do you realistically have before evening?</label><div class="btnrow" data-field="afternoon.availableTime" data-type="choice" data-options="&lt;30 min,30–60 min,1–2 h,2–3 h,3–4 h,4+ h"></div></div>
+    <div class="q"><label class="title">Anything competing for that time?</label><div class="btnrow" data-field="afternoon.obligations" data-type="multi" data-options="Work preparation,Travel,Food,Sleep,Personal/admin,Content creation,Nothing significant"></div></div>
+  </div>
+  <div class="card"><h2>5. 📚 Midday Reality Check</h2><div id="afternoonVerdict"></div></div>
+  <div class="savebar"><span id="afternoonStatus">Not saved yet.</span><button class="savebtn" onclick="saveStage('afternoon')">SAVE AFTERNOON CHECK-IN</button></div>
+</section>
+
+<section id="evening" class="panel hidden">
+  <div class="pagehead"><h1>🌆 Plot Twist: How Did the Day Actually Go?</h1><p>Morning made the plan. Afternoon adjusted it. Evening decides what is still realistically possible.</p></div>
+  <div class="card">
+    <h2>1. 🏥 Work Update</h2>
+    <div id="eWorkSummary" class="workbox"></div>
+    <div class="q"><label class="title">Has reality changed again?</label><div class="btnrow" data-field="evening.workChange" data-type="choice" data-options="No change,Started earlier,Starts later,Ending earlier,Ending later,Cancelled,New/additional work"></div></div>
+    <div id="eWorkChangeBox" class="hidden"></div>
+  </div>
+  <div class="card">
+    <h2>2. 📚 Study Progress</h2>
+    <div class="statgrid">
+      <div class="stat"><div id="ePmDone" class="big">0</div><div class="small">PM today</div></div>
+      <div class="stat"><div id="eKtDone" class="big">0</div><div class="small">KT cards today</div></div>
+      <div class="stat"><div id="ePmTarget" class="big">0</div><div class="small">Current PM target</div></div>
+      <div class="stat"><div id="eKtTargetStat" class="big">0</div><div class="small">Current KT target</div></div>
+    </div>
+    <div class="grid2" style="margin-top:15px">
+      <div class="q"><label class="title">PM completed so far today</label><input type="number" min="0" id="ePmCompletedInput"></div>
+      <div class="q"><label class="title">KT cards completed so far today</label><input type="number" min="0" id="eKtCompletedInput"></div>
+    </div>
+    <div class="grid2">
+      <div class="q"><label class="title">Additional PM tonight</label><div class="btnrow" data-field="evening.additionalPM" data-type="choice" data-options="0,5,10,15,20,30,40+"></div></div>
+      <div class="q"><label class="title">Additional KT tonight</label><div class="btnrow" data-field="evening.additionalKT" data-type="choice" data-options="0,10,20,30,40,50,75+"></div></div>
+    </div>
+    <div class="strict" id="ktTargetMessage"></div>
+    <div class="mini-note" id="eveningRemainingMessage" style="margin-top:10px"></div>
+  </div>
+  <div class="card"><h2>3. 🌙 Evening Capacity</h2><div id="eveningRatings"></div></div>
+  <div class="card">
+    <h2>4. 🛋️ What do you actually need tonight?</h2>
+    <div class="q"><label class="title">How much usable time do you have?</label><div class="btnrow" data-field="evening.availableTime" data-type="choice" data-options="&lt;30m,30–60m,1–2h,2–3h,3–4h,4h+"></div></div>
+    <div class="q"><label class="title">What else needs your attention?</label><div class="btnrow" data-field="evening.needs" data-type="multi" data-options="Sleep,Food,Personal life,Work preparation,Admin,Travel,Content creation,Nothing"></div></div>
+  </div>
+  <div class="card">
+    <h2>5. 🎥 Content Creation</h2>
+    <div class="q"><label class="title">Content status today</label><div class="btnrow" data-field="evening.contentStatus" data-type="choice" data-options="Nothing planned,Idea only,Scripted,Recorded,Edited,Posted"></div></div>
+    <div class="q"><label class="title">Do you want to work on content tonight?</label><div class="btnrow" data-field="evening.contentTime" data-type="choice" data-options="No,15 min,30 min,60 min+"></div></div>
+  </div>
+  <div class="card"><h2>6. 🧮 Evening Re-calculation</h2><div id="eveningVerdict"></div></div>
+  <div class="savebar"><span id="eveningStatus">Not saved yet.</span><button class="savebtn" onclick="saveStage('evening')">SAVE EVENING CHECK-IN</button></div>
+</section>
+
+<section id="night" class="panel hidden">
+  <div class="pagehead"><h1>🌙 Close the Tabs</h1><p>No more planning-heavy questions. Record the day, learn from it, and feed tomorrow.</p></div>
+  <div class="card">
+    <h2>1. 📊 Today's Scorecard</h2>
+    <div id="nightScorecard"></div>
+  </div>
+  <div class="card"><h2>2. 🧠 How did today actually feel?</h2><div id="nightRatings"></div></div>
+  <div class="card">
+    <h2>3. 📝 Quick Reflection</h2>
+    <div class="q"><label class="title">What helped today?</label><div class="btnrow" data-field="night.helped" data-type="multi" data-options="Good sleep,Good planning,Momentum,Short sessions,KT,PM,Rest,Other"></div></div>
+    <div class="q"><label class="title">What got in the way?</label><div class="btnrow" data-field="night.hindered" data-type="multi" data-options="Work,Travel,Sleep,Stress,Mood,Phone/distraction,Personal responsibilities,Poor planning,Other"></div></div>
+    <div class="q"><label class="title">Today I learned that…</label><textarea data-field="night.reflection"></textarea></div>
+  </div>
+  <div class="card"><h2>4. 📈 Historical Learning</h2><div id="patterns"></div></div>
+  <div class="card">
+    <h2>5. 🎯 Tomorrow Preview</h2>
+    <div id="tomorrowPreview"></div>
+  </div>
+  <div class="card">
+    <h2>6. 🌙 Final check</h2>
+    <div class="q"><label class="title">How do you feel about tomorrow?</label><div class="btnrow" data-field="night.tomorrowFeeling" data-type="score" data-options="1,2,3,4,5"></div><div class="mini-note">1 = Please let me hibernate · 5 = LET'S FUCKING GO.</div></div>
+  </div>
+  <div class="card">
+    <h2>🗃️ Historical Database</h2>
+    <div class="grid2">
+      <div><b>Saved days:</b> <span id="historyCount">0</span><div class="footer-note">Data stays in this browser using persistent local storage.</div></div>
+      <div class="btnrow" style="justify-content:flex-end"><button class="smallbtn" onclick="exportData()">Export history</button><button class="smallbtn" onclick="document.getElementById('importFile').click()">Import history</button><input id="importFile" type="file" accept="application/json" class="hidden"></div>
+    </div>
+    <div class="history-wrap" style="margin-top:15px"><table><thead><tr><th>Date</th><th>Work</th><th>PM</th><th>KT</th><th>KT %</th><th>Capacity</th><th>Status</th></tr></thead><tbody id="historyTable"></tbody></table></div>
+  </div>
+  <div class="savebar"><span id="nightStatus">Not saved yet.</span><button class="savebtn" onclick="closeDay()">CLOSE DAY</button></div>
+</section>
+</main>
+
+<script>
+const KEY='pst_capacity_tracker_v1_1'; // v1.3 keeps the existing storage key so prior history remains available.
+const CORE={pmStart:4800,ktBaseline:0,examDate:'2027-01-15',revisionDays:30,mockDays:21};
+const ratingSets={
+  morning:[
+    ['physicalEnergy','Physical energy','normal'],['mentalEnergy','Mental energy','normal'],['mood','Mood','normal'],
+    ['motivation','Motivation','normal'],['concentration','Concentration','normal'],['stress','Stress','inverse'],
+    ['emotionalLoad','Emotional load','inverse'],['travelFatigue','Travel fatigue','inverse'],['adminBurden','Personal/admin burden','inverse']
+  ],
+  afternoon:[['physicalEnergy','Physical energy','normal'],['mentalEnergy','Mental energy','normal'],['mood','Mood','normal'],['concentration','Concentration','normal'],['stress','Stress','inverse'],['emotionalLoad','Emotional load','inverse']],
+  evening:[['physicalEnergy','Physical energy','normal'],['mentalEnergy','Mental energy','normal'],['concentration','Concentration','normal'],['mood','Mood','normal'],['stress','Stress','inverse'],['emotionalLoad','Emotional load','inverse']],
+  night:[['physicalEnergy','Physical energy','normal'],['mentalEnergy','Mental energy','normal'],['concentration','Concentration','normal'],['mood','Mood','normal'],['stress','Stress','inverse'],['emotionalLoad','Emotional load','inverse'],['satisfaction','Satisfaction with effort','normal']]
+};
+let db=loadDB();
+let currentDate=todayISO();
+let activeTab='morning';
+
+function todayISO(){return new Date().toISOString().slice(0,10)}
+function blankDay(){return {date:currentDate,morning:{},afternoon:{},evening:{},night:{},workEvents:[],closed:false,savedAt:{}}}
+function getDay(d=currentDate){if(!db.days[d]) db.days[d]=blankDay(); return db.days[d]}
+function loadDB(){try{return JSON.parse(localStorage.getItem(KEY))||{days:{},core:CORE}}catch(e){return {days:{},core:CORE}}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
+function pathGet(obj,path){return path.split('.').reduce((o,k)=>o?.[k],obj)}
+function pathSet(obj,path,val){let p=path.split('.'),x=obj; for(let i=0;i<p.length-1;i++){if(!x[p[i]])x[p[i]]={};x=x[p[i]]} x[p[p.length-1]]=val; persist(); renderAll()}
+function setStageValue(stage,path,val){let d=getDay(); pathSet(d,stage+'.'+path,val); persist()}
+function getField(full){return pathGet(getDay(),full)}
+function setField(full,val){pathSet(getDay(),full,val)}
+
+function addWorkControls(containerId, stage, type){
+  const el=document.getElementById(containerId); if(!el)return;
+  const prefix=stage+'.';
+  el.innerHTML=`
+    <div class="grid2">
+      <div><label class="title">Start</label><select data-field="${prefix}start"><option value="">Choose...</option><option>Morning</option><option>Evening</option></select></div>
+      <div><label class="title">End</label><select data-field="${prefix}end"><option value="">Choose...</option><option>Morning</option><option>Evening</option></select></div>
+    </div>
+    <div class="mini-note" style="margin-top:8px">Morning = day start · Evening = evening start. The app stores the work event against its calendar date so future days can read it automatically.</div>
+    ${type==='yesterday'?'<div class="q"><label class="title">How hectic was yesterday\'s work? <span data-value="'+prefix+'hecticity">—</span>/5</label><div class="btnrow" data-field="'+prefix+'hecticity" data-type="score" data-options="1,2,3,4,5"></div></div>':''}
+  `;
+  bindDynamic(el);
+  restoreFields(el);
+}
+function bindDynamic(root=document){
+  root.querySelectorAll('[data-field]').forEach(el=>{
+    if(el.dataset.bound)return; el.dataset.bound='1';
+    const field=el.dataset.field, type=el.dataset.type;
+    if(type==='choice'||type==='score'){
+      el.querySelectorAll('button').forEach(b=>b.onclick=()=>{setField(field,b.dataset.val); highlight(el);});
+    }else if(type==='multi'){
+      el.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+        let v=getField(field); if(!Array.isArray(v))v=[];
+        const val=b.dataset.val; v=v.includes(val)?v.filter(x=>x!==val):[...v,val];
+        setField(field,v); highlight(el);
+      });
+    }else if(el.tagName==='INPUT'||el.tagName==='SELECT'||el.tagName==='TEXTAREA'){
+      el.onchange=()=>setField(field,el.value);
+      el.oninput=()=>{if(el.tagName==='TEXTAREA')setField(field,el.value)}
+    }
+  });
+}
+function highlight(el){
+  const val=getField(el.dataset.field);
+  el.querySelectorAll('button').forEach(b=>{
+    const on=el.dataset.type==='multi'?Array.isArray(val)&&val.includes(b.dataset.val):String(val)===String(b.dataset.val);
+    b.classList.toggle('selected',on);
+  });
+}
+function makeButtons(root){
+  root.querySelectorAll('.btnrow[data-options]').forEach(el=>{
+    if(el.children.length) return;
+    const opts=el.dataset.options.split(',');
+    opts.forEach(v=>{const b=document.createElement('button');b.type='button';b.className=el.dataset.type==='score'?'score':'choice';b.textContent=v;b.dataset.val=v.trim();el.appendChild(b)});
+  });
+}
+function restoreFields(root=document){
+  root.querySelectorAll('[data-field]').forEach(el=>{
+    const val=getField(el.dataset.field);
+    if(el.dataset.type==='choice'||el.dataset.type==='score'||el.dataset.type==='multi') highlight(el);
+    else if(val!==undefined && val!==null && el.value!==undefined) el.value=val;
+  });
+}
+function bindBasics(){
+  document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+  document.getElementById('trackerDate').onchange=e=>{currentDate=e.target.value; if(!db.days[currentDate])db.days[currentDate]=blankDay(); persist(); renderAll()};
+  document.getElementById('aPmInput').onchange=e=>setField('afternoon.pmCompleted',Math.max(0,+e.target.value||0));
+  document.getElementById('aKtCardsInput').onchange=e=>setField('afternoon.ktCardsCompleted',Math.max(0,+e.target.value||0));
+  document.getElementById('ePmCompletedInput').onchange=e=>setField('evening.pmCompleted',Math.max(0,+e.target.value||0));
+  document.getElementById('eKtCompletedInput').onchange=e=>setField('evening.ktCardsCompleted',Math.max(0,+e.target.value||0));
+  document.getElementById('importFile').onchange=importData;
+}
+function showTab(tab){activeTab=tab;document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('hidden',p.id!==tab));document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));renderAll()}
+function renderRatings(){
+  Object.entries(ratingSets).forEach(([stage,set])=>{
+    const host=document.getElementById(stage+'Ratings'); if(!host)return;
+    host.innerHTML=set.map(([key,label,dir])=>`<div class="rating"><div class="name">${label} <span data-value="${stage}.${key}">—</span>/5</div><div class="btnrow" data-field="${stage}.${key}" data-type="score" data-options="1,2,3,4,5"></div></div>`).join('');
+    makeButtons(host); bindDynamic(host); restoreFields(host);
+  });
+}
+function renderStudyRunway(){
+  const d=getDay(), t=targetEngine(), ktTargetCards=ktCardTarget();
+  const pmDone=dailyPM(d), ktDone=dailyKT(d);
+  const pmLeft=Math.max(0,Math.round(t.target-pmDone));
+  const ktLeft=Math.max(0,Math.round(ktTargetCards-ktDone));
+  const totalTarget=Math.max(1,t.target+ktTargetCards);
+  const totalDone=Math.min(t.target,pmDone)+Math.min(ktTargetCards,ktDone);
+  const pct=Math.max(0,Math.min(100,(totalDone/totalTarget)*100));
+  const workCap=hasWorkTodayOrPostWork();
+  document.getElementById('runwayNumbers').textContent=`${pmLeft} PM · ${ktLeft} KT cards left`;
+  document.getElementById('runwayFill').style.width=pct.toFixed(0)+'%';
+  document.getElementById('runwaySub').textContent=workCap
+    ? 'Duty/post-duty day: reduced load is intentional. The runway tracks what is left for TODAY.'
+    : `Keep moving: ${pct.toFixed(0)}% of today's combined target completed. The runway stays with you across every check-in.`;
+}
+function renderAll(){
+  syncWorkFlagsFromHistory();
+  document.getElementById('trackerDate').value=currentDate;
+  renderRatings();
+  ['mTodayWork','mYesterdayWork','mTomorrowWork'].forEach(x=>document.getElementById(x).classList.add('hidden'));
+  const m=getDay().morning;
+  if(m.workToday==='Yes'){document.getElementById('mTodayWork').classList.remove('hidden');addWorkControls('mTodayWork','workTodayData','today')}
+  if(m.workYesterday==='Yes'){document.getElementById('mYesterdayWork').classList.remove('hidden');addWorkControls('mYesterdayWork','workYesterdayData','yesterday')}
+  if(m.workTomorrow==='Yes'){document.getElementById('mTomorrowWork').classList.remove('hidden');addWorkControls('mTomorrowWork','workTomorrowData','tomorrow')}
+  makeButtons(document); bindDynamic(); restoreFields();
+  renderWorkSummaries(); renderTargets(); renderNight(); renderHistory(); renderStudyRunway();
+}
+function capacity(stage){
+  const set=ratingSets[stage]; let sum=0,n=0;
+  set.forEach(([k,,dir])=>{let v=+getField(stage+'.'+k); if(v>=1&&v<=5){sum+=(dir==='inverse'?6-v:v);n++}});
+  return n?sum/n:null;
+}
+function explicitWorkFlagForDate(d){
+  const day=db.days[d];
+  if(!day)return false;
+  // Treat an explicit Yes as a real duty even if the start/end controls have
+  // not yet been filled. This prevents a duty day from ever being scored as
+  // a high-capacity study day simply because the work-time details are blank.
+  return day.morning?.workToday==='Yes' || day.morning?.workTomorrow==='Yes' && d===datePlus(currentDate,-1);
+}
+function hasWorkTodayOrPostWork(){
+  const today=currentDate;
+  const yesterday=datePlus(currentDate,-1);
+  const todayEvents=findWorkEventsForDate(today);
+  const yesterdayEvents=findWorkEventsForDate(yesterday);
+  const todayExplicit=db.days[today]?.morning?.workToday==='Yes';
+  const yesterdayTomorrowExplicit=db.days[yesterday]?.morning?.workTomorrow==='Yes';
+  const yesterdayTodayExplicit=db.days[yesterday]?.morning?.workToday==='Yes';
+  return todayEvents.length>0 || yesterdayEvents.length>0 || todayExplicit || yesterdayTomorrowExplicit || yesterdayTodayExplicit;
+}
+function effectiveCapacity(stage){
+  const raw=capacity(stage);
+  const constrained=hasWorkTodayOrPostWork();
+  // HARD RULE: a duty day OR the immediate post-duty day can NEVER display
+  // capacity > 2/5. This rule is deliberately independent of mood, energy,
+  // sleep, concentration, etc. Those inputs may lower capacity further, but
+  // they can never override the work-day cap.
+  if(constrained) return raw===null ? 2 : Math.min(2,raw);
+  return raw;
+}
+function scoreToCapacity(){return effectiveCapacity('morning')??3}
+function parseHoursLabel(s){
+  if(!s)return 0; if(s.includes('<'))return .25;if(s.includes('30–60'))return .75;if(s.includes('1–2'))return 1.5;if(s.includes('2–3'))return 2.5;if(s.includes('3–4'))return 3.5;if(s.includes('4+'))return 4.5;return 0
+}
+function workHours(start,end){
+  if(!start||!end)return null;
+  const t={Morning:8,Evening:20}; let a=t[start],b=t[end];
+  if(b<=a)b+=24;
+  return b-a;
+}
+function workText(data){
+  if(!data?.start||!data?.end)return 'Work time not fully entered.';
+  const h=workHours(data.start,data.end); return `${data.start} → ${data.end} · ${h} h`;
+}
+function datePlus(d,n){let x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)}
+function dateDiff(a,b){return Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000)}
+function getWorkForDate(d){
+  const day=db.days[d]; if(!day)return null;
+  if(day.morning.workToday==='Yes'&&day.morning.workTodayData?.start&&day.morning.workTodayData?.end)return {kind:'today',data:day.morning.workTodayData,source:d};
+  if(day.morning.workYesterday==='Yes'&&day.morning.workYesterdayData?.start&&day.morning.workYesterdayData?.end){
+    const src=datePlus(d,-1); if(d===datePlus(src,1))return {kind:'yesterday',data:day.morning.workYesterdayData,source:src};
+  }
+  for(const [src,sd] of Object.entries(db.days)){
+    const wt=sd.morning?.workTomorrowData;
+    if(sd.morning?.workTomorrow==='Yes'&&wt?.start&&wt?.end&&datePlus(src,1)===d)return {kind:'tomorrow',data:wt,source:src};
+  }
+  return null;
+}
+function syncWorkFlagsFromHistory(){
+  const d=getDay();
+  const todayEvents=findWorkEventsForDate(currentDate);
+  const yesterdayEvents=findWorkEventsForDate(datePlus(currentDate,-1));
+  const tomorrowEvents=findWorkEventsForDate(datePlus(currentDate,1));
+
+  // Forward-link work already entered on a previous day into the next day.
+  // Existing explicit "No" choices are respected, but a blank/new day is
+  // automatically populated so the user is not asked to re-enter the duty.
+  if(todayEvents.length && d.morning.workToday!=='No'){
+    d.morning.workToday='Yes';
+    if(!d.morning.workTodayData?.start || !d.morning.workTodayData?.end){
+      d.morning.workTodayData={...todayEvents[0].data};
+    }
+  }
+
+  if(yesterdayEvents.length && d.morning.workYesterday!=='No'){
+    d.morning.workYesterday='Yes';
+    if(!d.morning.workYesterdayData?.start || !d.morning.workYesterdayData?.end){
+      d.morning.workYesterdayData={...yesterdayEvents[0].data};
+    }
+  }
+
+  if(tomorrowEvents.length && d.morning.workTomorrow!=='No'){
+    d.morning.workTomorrow='Yes';
+    if(!d.morning.workTomorrowData?.start || !d.morning.workTomorrowData?.end){
+      d.morning.workTomorrowData={...tomorrowEvents[0].data};
+    }
+  }
+
+  persist();
+}
+function eventCoversDate(startDate,data,targetDate){
+  if(!data?.start||!data?.end)return false;
+  const sh=data.start==='Morning'?8:20, eh=data.end==='Morning'?8:20;
+  let endOffset=(eh<=sh)?1:0;
+  const start=new Date(startDate+'T'+String(sh).padStart(2,'0')+':00:00');
+  const end=new Date(start); end.setDate(end.getDate()+endOffset); end.setHours(eh,0,0,0);
+  const targetStart=new Date(targetDate+'T00:00:00');
+  const targetEnd=new Date(targetDate+'T23:59:59');
+  return start<=targetEnd && end>=targetStart;
+}
+function findWorkEventsForDate(d){
+  const out=[];
+  const seen=new Set();
+  for(const [src,sd] of Object.entries(db.days)){
+    const m=sd.morning||{};
+    if(m.workToday==='Yes'&&m.workTodayData?.start&&m.workTodayData?.end&&eventCoversDate(src,m.workTodayData,d)){
+      const key='today|'+src; if(!seen.has(key)){out.push({source:src,data:m.workTodayData,kind:'today'});seen.add(key);}
+    }
+    if(m.workTomorrow==='Yes'&&m.workTomorrowData?.start&&m.workTomorrowData?.end){
+      const eventDate=datePlus(src,1);
+      if(eventCoversDate(eventDate,m.workTomorrowData,d)){
+        const key='tomorrow|'+src; if(!seen.has(key)){out.push({source:src,data:m.workTomorrowData,kind:'tomorrow'});seen.add(key);}
+      }
+    }
+  }
+  return out;
+}
+function currentWorkSummary(){
+  const ev=findWorkEventsForDate(currentDate);
+  if(!ev.length)return 'No work recorded for today.';
+  return ev.map(e=>`Today: ${workText(e.data)} <span class="mini-note">(from ${e.source}${e.source!==currentDate?' · historical/forward-linked':''})</span>`).join('<br>');
+}
+function targetEngine(){
+  const completed=allPMCompletedBeforeAndToday();
+  const remaining=Math.max(0,CORE.pmStart-completed);
+  const exam=new Date(CORE.examDate+'T12:00:00');
+  const firstPassDeadline=new Date(exam);
+  firstPassDeadline.setDate(firstPassDeadline.getDate()-(CORE.revisionDays+CORE.mockDays));
+  const daysLeft=Math.max(1,Math.ceil((firstPassDeadline-new Date(currentDate+'T12:00:00'))/86400000));
+  const pace=Math.ceil(remaining/daysLeft);
+  const cap=scoreToCapacity();
+  const work=findWorkEventsForDate(currentDate);
+  const postWork=findWorkEventsForDate(datePlus(currentDate,-1)).length>0 || db.days[datePlus(currentDate,-1)]?.morning?.workTomorrow==='Yes' || db.days[datePlus(currentDate,-1)]?.morning?.workToday==='Yes';
+  const workTodayExplicit=db.days[currentDate]?.morning?.workToday==='Yes';
+  const constrained=work.length>0 || postWork || workTodayExplicit;
+  const workH=work?.length?work.reduce((s,e)=>s+(workHours(e.data.start,e.data.end)||0),0):0;
+  const sleep=getField('morning.sleepDuration');
+
+  let base=pace;
+  if(cap>=4) base=Math.ceil(pace*1.12);
+  else if(cap>=3) base=Math.ceil(pace*1.02);
+  else if(cap>=2) base=Math.ceil(pace*.88);
+  else base=Math.ceil(pace*.65);
+
+  // WORK-DAY RULE: duty and immediate post-duty days must carry a visibly
+  // reduced study load. Non-work days carry the normal schedule and therefore
+  // absorb the catch-up required to protect the first-pass deadline.
+  if(constrained){
+    base=Math.ceil(pace*.55);
+    if(workH>=24) base=Math.ceil(base*.90);
+    else if(workH>=13) base=Math.ceil(base*.95);
+    else if(postWork) base=Math.ceil(base*.95);
+  }
+
+  if((sleep||'').startsWith('< 4'))base=Math.ceil(base*.75);
+
+  let survival,minimum,target,stretch;
+  if(constrained){
+    survival=Math.max(1,Math.ceil(pace*.35));
+    minimum=Math.max(survival,Math.min(Math.max(1,remaining),base));
+    target=Math.min(remaining,Math.max(minimum+3,Math.ceil(base*1.20)));
+    stretch=Math.min(remaining,Math.max(target+4,Math.ceil(target*1.25)));
+  }else{
+    survival=Math.max(1,Math.ceil(pace*(cap<2?0.45:.60)));
+    minimum=Math.max(survival,Math.min(Math.max(1,remaining),base));
+    target=Math.min(remaining,Math.max(minimum+5,Math.ceil(minimum*1.35)));
+    stretch=Math.min(remaining,Math.max(target+5,Math.ceil(target*1.35)));
+  }
+
+  return {
+    remaining,pace,daysLeft,cap,workH,postWork,constrained,survival,minimum,target,stretch,
+    firstPassDeadline:firstPassDeadline.toISOString().slice(0,10)
+  };
+}
+function allPMCompletedBeforeAndToday(){
+  return Object.values(db.days).reduce((s,d)=>s+dailyPM(d),0);
+}
+function dailyPM(d=getDay()){
+  return Math.max(
+    0,
+    +d.morning?.pmCompleted||0,
+    +d.afternoon?.pmCompleted||0,
+    +d.evening?.pmCompleted||0,
+    +d.night?.pmCompleted||0
+  );
+}
+function dailyKT(d=getDay()){
+  return Math.max(
+    0,
+    +d.morning?.ktCardsCompleted||0,
+    +d.afternoon?.ktCardsCompleted||0,
+    +d.evening?.ktCardsCompleted||0,
+    +d.night?.ktCards||0
+  );
+}
+function historicalKTCardAverage(){
+  const vals=Object.values(db.days)
+    .filter(d=>d.closed)
+    .map(d=>dailyKT(d))
+    .filter(v=>v>0);
+  return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 20;
+}
+function ktCardTarget(){
+  // KT card workload tracks the same daily target as PassMedicine.
+  // Work/post-work reductions therefore apply automatically to both.
+  const t=targetEngine();
+  return Math.max(0, Math.round(t.target));
+}
+function completedToday(){
+  return dailyPM(getDay());
+}
+function ktTarget(){
+  const vals=Object.values(db.days)
+    .map(d=>+d.night?.ktScore)
+    .filter(v=>v>=0&&v<=100);
+  const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:CORE.ktBaseline;
+  const recent=vals.slice(-5);
+  const r=recent.length?recent.reduce((a,b)=>a+b,0)/recent.length:avg;
+  // Fixed training floor: aim for >=80% every time, rather than
+  // allowing a low historical average to lower the target.
+  const target=80;
+  return {avg,recent:r,target};
+}
+function tierHTML(t){
+  return `<div class="statgrid">
+    <div class="stat"><div class="big">${t.remaining}</div><div class="small">PM remaining</div></div>
+    <div class="stat"><div class="big">${t.pace}</div><div class="small">Required pace/day</div></div>
+    <div class="stat"><div class="big">${t.daysLeft}</div><div class="small">First-pass days left</div></div>
+    <div class="stat"><div class="big">${t.cap? t.cap.toFixed(1):'—'}</div><div class="small">Capacity /5</div></div>
+  </div>
+  <div class="tiers">
+    <div class="tier survival"><b>🪫 SURVIVAL</b><div class="num">${t.survival} PM</div><div class="mini-note">Keep continuity.</div></div>
+    <div class="tier minimum"><b>🔒 MINIMUM</b><div class="num">${t.minimum} PM</div><div class="mini-note">Required to protect the schedule.</div></div>
+    <div class="tier target"><b>🎯 TARGET</b><div class="num">${t.target} PM</div><div class="mini-note">A productive day.</div></div>
+    <div class="tier stretch"><b>🚀 STRETCH</b><div class="num">${t.stretch} PM</div><div class="mini-note">Only if capacity allows.</div></div>
+  </div>
+  <div class="strict">${strictMessage(t)}</div>
+  <div class="mini-note" style="margin-top:10px"><b>Knowledge Tutor:</b> ${Math.max(0,Math.round(t.target))} cards target · <b>KT scoring target:</b> ≥80%</div>
+  <div class="footer-note">First-pass deadline: ${t.firstPassDeadline} · Exam: ${CORE.examDate} · Protected revision/mocks: ${CORE.revisionDays+CORE.mockDays} days.</div>`;
+}
+function strictMessage(t){
+  if(t.remaining<=0)return '🎉 Beta, first pass is finished. Now we protect revision and mocks.';
+  if(t.constrained)return '🩺 WORK/POST-WORK DAY: capacity is hard-capped at 2/5. Study load is automatically reduced; the non-work days will carry the catch-up.';
+  if(t.cap!==null&&t.cap<2)return '🫂 Today is genuinely rough. Do the Survival floor, protect recovery, and come back tomorrow.';
+  if(t.pace>=60)return '🚨 We are in serious catch-up territory. The syllabus is not going to finish itself. Get your shit together.';
+  if(t.minimum>=50)return '👩‍👧 Mom says: this is not a 10-question day. You have a syllabus to finish. Minimum means MINIMUM.';
+  if(t.minimum>30)return '👩‍👧 You have enough capacity today. Minimum is the floor, not the goal. Let’s move.';
+  return 'Good. We have a realistic floor. Hit Minimum first; Target keeps the plan healthy.';
+}
+function renderTargets(){
+  const t=targetEngine();
+  const kt=ktTarget();
+  const ktCardsTarget=ktCardTarget();
+
+  document.getElementById('morningVerdict').innerHTML=`<div class="verdict"><div class="capacity">YOUR CAPACITY: ${t.cap? t.cap.toFixed(1):'—'} / 5</div>${tierHTML(t)}</div>`;
+
+  document.getElementById('aPmTarget').textContent=t.target;
+  document.getElementById('aKtCardTarget').textContent=ktCardsTarget;
+  document.getElementById('aPmDone').textContent=dailyPM(getDay());
+  document.getElementById('aKtDone').textContent=dailyKT(getDay());
+
+  const apm=document.getElementById('aPmInput');
+  if(apm) apm.value=+getField('afternoon.pmCompleted')||dailyPM(getDay());
+  const akt=document.getElementById('aKtCardsInput');
+  if(akt) akt.value=+getField('afternoon.ktCardsCompleted')||dailyKT(getDay());
+  const avCap=effectiveCapacity('afternoon');
+  const at={...t,cap:avCap??t.cap};
+  document.getElementById('afternoonVerdict').innerHTML=`<div class="verdict"><div class="capacity">UPDATED CAPACITY: ${at.cap?at.cap.toFixed(1):'—'} / 5</div>${tierHTML(at)}</div>
+    <div class="mini-note" style="margin-top:10px"><b>Remaining for today's target:</b> ${Math.max(0,t.target-dailyPM(getDay()))} PM · ${Math.max(0,ktCardsTarget-dailyKT(getDay()))} KT cards.</div>`;
+
+  document.getElementById('ePmDone').textContent=dailyPM(getDay());
+  document.getElementById('eKtDone').textContent=dailyKT(getDay());
+  document.getElementById('eKtTargetStat').textContent=ktCardsTarget;
+  document.getElementById('ePmTarget').textContent=t.target;
+
+  const epm=document.getElementById('ePmCompletedInput');
+  if(epm) epm.value=+getField('evening.pmCompleted')||dailyPM(getDay());
+  const ekt=document.getElementById('eKtCompletedInput');
+  if(ekt) ekt.value=+getField('evening.ktCardsCompleted')||dailyKT(getDay());
+
+  document.getElementById('ktTargetMessage').innerHTML=`🧠 <b>KT accuracy target tonight: ≥${kt.target}%</b><br><span class="mini-note">Final accuracy is recorded only at Night. Current historical average: ${kt.avg.toFixed(0)}%. Baseline: ${CORE.ktBaseline}%. We are aiming upward, not settling.</span>`;
+  document.getElementById('eveningRemainingMessage').innerHTML=`<b>Modified target after today's progress:</b> ${Math.max(0,t.target-dailyPM(getDay()))} PM remaining · ${Math.max(0,ktCardsTarget-dailyKT(getDay()))} KT cards remaining.`;
+
+  const evCap=effectiveCapacity('evening');
+  const et={...t,cap:evCap??t.cap};
+  document.getElementById('eveningVerdict').innerHTML=`<div class="verdict">${tierHTML(et)}</div>
+    <div class="mini-note" style="margin-top:10px"><b>Evening remaining:</b> ${Math.max(0,et.target-dailyPM(getDay()))} PM · ${Math.max(0,ktCardsTarget-dailyKT(getDay()))} KT cards.</div>`;
+}
+function renderWorkSummaries(){
+  document.getElementById('aWorkSummary').innerHTML=currentWorkSummary();
+  document.getElementById('eWorkSummary').innerHTML=currentWorkSummary();
+  const m=getDay().morning;
+  document.getElementById('aWorkChangeBox').classList.toggle('hidden',!['Started earlier','Starts later','Ending earlier','Ending later','Cancelled','New/additional work'].includes(getField('afternoon.workChange')));
+  document.getElementById('eWorkChangeBox').classList.toggle('hidden',!['Started earlier','Starts later','Ending earlier','Ending later','Cancelled','New/additional work'].includes(getField('evening.workChange')));
+}
+function renderNight(){
+  const d=getDay(), t=targetEngine(), kt=ktTarget();
+  const pm=d.night?.pmCompleted ?? dailyPM(d);
+  const ktCards=d.night?.ktCards ?? dailyKT(d);
+  const actualKT=d.night?.ktScore;
+  document.getElementById('nightScorecard').innerHTML=`
+    <div class="statgrid">
+      <div class="stat"><div class="big">${pm}</div><div class="small">PM completed</div></div>
+      <div class="stat"><div class="big">${ktCards}</div><div class="small">KT cards completed</div></div>
+      <div class="stat"><div class="big">${t.target}</div><div class="small">PM target</div></div>
+      <div class="stat"><div class="big">${actualKT??'—'}%</div><div class="small">KT score</div></div>
+    </div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="q"><label class="title">PassMedicine cards completed today</label><input type="number" min="0" value="${pm}" id="nightPmCards"></div>
+      <div class="q"><label class="title">Knowledge Tutor cards completed today</label><input type="number" min="0" value="${ktCards}" id="nightKtCards"></div>
+    </div>
+    <div class="grid2">
+      <div class="q"><label class="title">PassMedicine average score today (%)</label><input type="number" min="0" max="100" value="${d.night?.pmScore??''}" placeholder="0–100" id="nightPmScore"></div>
+      <div class="q"><label class="title">Knowledge Tutor final score today (%)</label><input type="number" min="0" max="100" value="${actualKT??''}" placeholder="0–100" id="nightKtScore"></div>
+    </div>
+    <div class="strict" style="margin-top:12px">🧠 <b>KT scoring target: ≥80%</b> · Final accuracy is logged here only.</div>
+    <div class="mini-note">Work: ${currentWorkSummary()} · PM remaining: ${t.remaining}</div>`;
+  document.getElementById('nightPmCards').onchange=e=>setField('night.pmCompleted',Math.max(0,+e.target.value||0));
+  document.getElementById('nightKtCards').onchange=e=>setField('night.ktCards',Math.max(0,+e.target.value||0));
+  document.getElementById('nightPmScore').onchange=e=>setField('night.pmScore',Math.min(100,Math.max(0,+e.target.value||0)));
+  document.getElementById('nightKtScore').onchange=e=>setField('night.ktScore',Math.min(100,Math.max(0,+e.target.value||0)));
+  const rows=Object.values(db.days).filter(x=>x.closed).length;
+  document.getElementById('historyCount').textContent=rows;
+  document.getElementById('patterns').innerHTML=patternsHTML();
+  document.getElementById('tomorrowPreview').innerHTML=tomorrowHTML();
+}
+function patternsHTML(){
+  const days=Object.values(db.days).filter(d=>d.closed);
+  if(!days.length)return '<div class="mini-note">Close a few days and Mom will have enough history to identify patterns.</div>';
+  const pm=days.map(d=>+d.afternoon?.pmCompleted||0), kt=days.map(d=>+d.night?.ktScore).filter(x=>x>=0);
+  const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'—';
+  return `<div class="grid3"><div class="stat"><div class="big">${avg(pm)}</div><div class="small">Historical PM/day</div></div><div class="stat"><div class="big">${avg(kt)}%</div><div class="small">Historical KT accuracy</div></div><div class="stat"><div class="big">${days.length}</div><div class="small">Closed days</div></div></div>
+  <div class="strict" style="margin-top:12px">Mom is watching the pattern, not one bad day. Repeated underperformance will change tomorrow's message and keep the deadline visible.</div>`;
+}
+function tomorrowHTML(){
+  const nd=datePlus(currentDate,1), d=db.days[nd], t=targetEngine();
+  const work=findWorkEventsForDate(nd);
+  const pm=dailyPM(getDay());
+  const days=Object.values(db.days).filter(x=>x.closed);
+  const pmVals=days.map(x=>dailyPM(x));
+  const ktVals=days.map(x=>+x.night?.ktScore).filter(x=>x>=0);
+  const avg=a=>a.length?(a.reduce((x,y)=>x+y,0)/a.length).toFixed(1):'—';
+  return `<div class="statgrid"><div class="stat"><div class="big">${work?.length?'Yes':'No'}</div><div class="small">Tomorrow's work</div></div><div class="stat"><div class="big">${work?.length?work.reduce((s,e)=>s+(workHours(e.data.start,e.data.end)||0),0):0} h</div><div class="small">Expected duration</div></div><div class="stat"><div class="big">${t.remaining}</div><div class="small">PM remaining</div></div><div class="stat"><div class="big">${dateDiff(currentDate,CORE.examDate)}</div><div class="small">Days to exam</div></div></div>
+  <div style="margin-top:12px"><b>Recent PM average:</b> ${avg(pmVals)} · <b>Recent KT average:</b> ${avg(ktVals)}%</div>
+  <div class="strict">Tomorrow will recalculate from the actual history. You do not have to decide tonight; Mom will do the maths.</div>`;
+}
+function saveStage(stage){
+  const d=getDay(); d.savedAt[stage]=new Date().toISOString();
+  persist();
+  document.getElementById(stage+'Status').textContent='✓ Saved — '+currentDate;
+  renderHistory();
+}
+function closeDay(){
+  const d=getDay();
+  d.night.pmCompleted=Math.max(0,+document.getElementById('nightPmCards')?.value||0);
+  d.night.ktCards=Math.max(0,+document.getElementById('nightKtCards')?.value||0);
+  d.night.ktScore=Math.min(100,Math.max(0,+document.getElementById('nightKtScore')?.value||0));
+  d.savedAt.night=new Date().toISOString(); d.closed=true;
+  persist();
+  document.getElementById('nightStatus').textContent='✓ Day closed — '+currentDate;
+  renderHistory(); renderAll();
+}
+function renderHistory(){
+  const rows=Object.values(db.days).filter(d=>d.closed).sort((a,b)=>b.date.localeCompare(a.date));
+  const body=document.getElementById('historyTable'); if(!body)return;
+  body.innerHTML=rows.map(d=>{
+    const ev=findWorkEventsForDate(d.date); const work=ev.length?ev.map(e=>workText(e.data)).join('; '):'—';
+    const pm=dailyPM(d), kt=dailyKT(d), score=d.night?.ktScore;
+    const cap=capacityForDay(d,'morning');
+    return `<tr><td>${d.date}</td><td>${work}</td><td>${pm}</td><td>${kt}</td><td>${score??'—'}%</td><td>${cap??'—'}</td><td class="good">Closed</td></tr>`
+  }).join('')||'<tr><td colspan="7" class="mini-note">No closed days yet.</td></tr>';
+}
+function capacityForDay(d,stage){
+  const set=ratingSets[stage], vals=[];
+  set.forEach(([k,,dir])=>{let v=+d[stage]?.[k];if(v>=1&&v<=5)vals.push(dir==='inverse'?6-v:v)});
+  return vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):null;
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='personal-study-tracker-history.json';a.click();URL.revokeObjectURL(a.href);
+}
+function importData(e){
+  const file=e.target.files[0]; if(!file)return;
+  const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.days)throw Error('Invalid');db=x;persist();renderAll();alert('History imported successfully.')}catch(err){alert('That file is not a valid tracker history.')}};r.readAsText(file);
+}
+function setup(){
+  document.getElementById('trackerDate').value=currentDate;
+  makeButtons(document); bindBasics(); renderAll();
+}
+setup();
+</script>
+</body>
+</html>
